@@ -4,7 +4,9 @@ from flask_plugin import PluginManager
 
 app = Flask(__name__)
 manager = PluginManager(app)
-manager.start(manager.find(id_='347336b4fcdd447985aec57f2bc5793c'))
+plugin = manager.find(id_='347336b4fcdd447985aec57f2bc5793c')
+if plugin:
+    manager.start(plugin)
 
 @app.route('/api', methods=['GET'])
 def api():
@@ -18,4 +20,4 @@ def operate(action, id):
     getattr(manager, action)(plugin)
     return 'Success'
 
-app.run()
+app.run(host='localhost', port=8000)

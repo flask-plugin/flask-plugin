@@ -35,7 +35,7 @@ def test_forbidden():
 
 
 @plugin.errorhandler(403)
-def forbidden(e):
+def forbidden(error):
     return 'My Forbidden!', 403
 
 

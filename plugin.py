@@ -1,15 +1,15 @@
 
-from . import utils
-
 import enum
 import inspect
 import typing as t
 
 from flask import abort
 from flask.app import Flask
-from flask.wrappers import Response
 from flask.scaffold import Scaffold
 import flask.typing as ft
+from flask.wrappers import Response
+
+from . import utils
 
 
 @enum.unique
@@ -248,12 +248,12 @@ class Plugin(Scaffold):
 
         # Deferred functions
         def _register_url_rule(app: Flask, config: utils.staticdict) -> None:
-            fullurl = '/' + config.blueprint + '/' + self._domain + '/' + rule
+            full_url = '/' + config.blueprint + '/' + self._domain + '/' + rule
             full_endpoint = config.blueprint + '.' + endpoint
             if full_endpoint in app.view_functions and view_func:
                 app.view_functions[full_endpoint] = view_func
             else:
-                app.add_url_rule(fullurl, config.blueprint + '.' + endpoint, view_func,
+                app.add_url_rule(full_url, config.blueprint + '.' + endpoint, view_func,
                                  provide_automatic_options, **options)
 
         def _unregister_url_rule(app: Flask, config: utils.staticdict) -> None:
@@ -265,8 +265,17 @@ class Plugin(Scaffold):
             if config.blueprint + '.' + endpoint in app.view_functions:
                 app.view_functions.pop(config.blueprint + '.' + endpoint)
 
-            # TODO: Remove URL Rule from `app.url_map`
-            fullurl = '/' + config.blueprint + '/' + self._domain + '/' + rule
+            # Remove URL Rule from `app.url_map`
+            def _belong_to_plugin(rule):
+                return rule.endpoint.lstrip(config.blueprint + '.') in self._endpoints
+            filtered = map(
+                lambda url_rule: url_rule.empty(), filter(
+                    lambda url_rule: not _belong_to_plugin(url_rule),
+                    app.url_map.iter_rules()
+                )
+            )
+            app.url_map = app.url_map_class(filtered)
+            self._endpoints.clear()
 
         self._register.append(_register_url_rule)
         self._unregister.append(_unregister_url_rule)

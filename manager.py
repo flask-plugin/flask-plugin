@@ -1,7 +1,7 @@
 
+import importlib.util as imp
 import os.path
 import typing as t
-import importlib.util as imp
 
 from flask import Flask
 from flask import Blueprint
