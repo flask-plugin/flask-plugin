@@ -104,6 +104,10 @@ class Plugin(Scaffold):
             it will raise `ValueError`.
         """
 
+        # Check domain name without '.'
+        if "." in domain:
+            raise ValueError("'domain' may not contain a dot '.' character.")
+
         # Get caller stack info and module using `inspect` module.
         if not import_name:
             import_name = inspect.stack()[1][0].f_locals.get('__name__')
