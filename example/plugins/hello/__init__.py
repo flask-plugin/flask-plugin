@@ -5,7 +5,8 @@ from flask import redirect, url_for, render_template, abort
 plugin = Plugin(
     id_='347336b4fcdd447985aec57f2bc5793c',
     domain='hello', name='Greeting',
-    static_folder='static'
+    static_folder='static',
+    template_folder='templates'
 )
 
 
@@ -21,7 +22,7 @@ def hello2admin():
 
 @plugin.route('/', methods=['GET'])
 def index():
-    return render_template('plugins/hello/index.html', name='Anonymous')
+    return render_template('index.html', name='Anonymous')
 
 
 @plugin.route('/staticfile', methods=['GET'])

@@ -5,6 +5,9 @@ import typing as t
 
 from flask import Flask
 from flask import Blueprint
+from flask import current_app
+from flask.globals import request
+from jinja2.loaders import FileSystemLoader
 
 from . import utils
 from .plugin import Plugin, PluginStatus
@@ -45,11 +48,57 @@ class PluginManager:
         # Register Bluprint for plugin
         url_prefix = '/' + config.blueprint.lstrip('/')
         self._blueprint = Blueprint(config.blueprint, __name__)
-        app.register_blueprint(
-            self._blueprint, url_prefix=url_prefix, template_folder='template')
+
+        # Replace and restore global `jinja_loader` in `app.jinja_env`
+        @self._blueprint.before_request
+        def _replace_jinja_loader():
+            app.jinja_env.loader = self._dynamic_select_jinja_loader()
+        @self._blueprint.after_request
+        def _restore_jinja_loader(response):
+            app.jinja_env.loader = app.jinja_loader
+            return response
+
+        # Register blueprint into app
+        app.register_blueprint(self._blueprint, url_prefix=url_prefix)
 
         # Register `app.plugin_manager`
         app.plugin_manager = self  # type: ignore
+
+    def _dynamic_select_jinja_loader(self) -> t.Optional[FileSystemLoader]:
+        """Replace raw `app.jinja_env.loader`.
+        If routing to an exist plugin, `request.blueprints` will be list like:
+            ```
+            ['plugins.PLUGIN_DOMAIN', 'plugins']
+            ```
+        So select first blueprint and using `.lstrip(self._config.blueprint + '.')`
+        to get current plugin domain.
+        Then iter `self._loaded` plugins to find which domain are registered into it.
+        And becasue `Plugin` inherit from `Scaffold`, it can handle `plugin.jinja_loader`
+        correctly, just return it.
+
+        It cannot use `locked_cached_property` because we hope template loader
+        switch dynamically everytime.
+
+        Returns:
+            Optional[BaseLoader]: plugin.jinja_loader
+        """
+        # Obtaining `app.plugin_manager` object
+        if hasattr(current_app, 'plugin_manager'):
+            manager: PluginManager = current_app.plugin_manager  # type: ignore
+        else:
+            return None
+
+        # Check if accessing plugin domain
+        names = request.blueprints
+        if len(names) != 2:
+            return None
+        domain = names[0].replace(manager._config.blueprint + '.', '')
+
+        # Dynamic switch plugin `jinja_loader`
+        for plugin in manager._loaded:
+            if plugin.domain == domain:
+                return plugin.jinja_loader
+        return None
 
     @property
     def status(self) -> t.List[t.Dict]:
@@ -76,7 +125,7 @@ class PluginManager:
         if not any((id_, domain, name)):
             return None
         for plugin in self.plugins:
-            if plugin.id_ == id_ or plugin.domain == domain or plugin.name == name:
+            if plugin.id_ == id_ or plugin.domain == domain or plugin.info.name == name:
                 return plugin
 
     def scan(self) -> t.Iterable[Plugin]:

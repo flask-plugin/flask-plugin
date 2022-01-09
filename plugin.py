@@ -68,6 +68,7 @@ class Plugin(Scaffold):
         import_name: str = None,
         static_folder: str = None,
         static_url_path: str = None,
+        template_folder: str = None,
         root_path: str = None
     ) -> None:
         """
@@ -132,7 +133,8 @@ class Plugin(Scaffold):
 
         # Initialize Scaffold
         super().__init__(import_name, static_folder=static_folder,
-                         static_url_path=static_url_path, root_path=root_path)
+                         static_url_path=static_url_path, root_path=root_path,
+                         template_folder=template_folder)
 
         # Add static file sending support
         if static_folder:
@@ -267,7 +269,7 @@ class Plugin(Scaffold):
 
             # Remove URL Rule from `app.url_map`
             def _belong_to_plugin(rule):
-                return rule.endpoint.lstrip(config.blueprint + '.') in self._endpoints
+                return rule.endpoint.replace(config.blueprint + '.', '') in self._endpoints
             filtered = map(
                 lambda url_rule: url_rule.empty(), filter(
                     lambda url_rule: not _belong_to_plugin(url_rule),
