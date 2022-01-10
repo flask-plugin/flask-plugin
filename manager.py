@@ -11,7 +11,7 @@ from jinja2.loaders import FileSystemLoader
 
 from . import utils
 from . import signals
-from .plugin import Plugin, PluginStatus
+from .plugin import Plugin
 
 
 class PluginManager:
@@ -195,8 +195,7 @@ class PluginManager:
 
     # Controllers
     def load(self, plugin: Plugin) -> None:
-        if not plugin.status == PluginStatus.Unloaded:
-            return
+        plugin.status.assert_('load')
 
         # Check if duplicated plugin id
         if plugin in self._loaded:
@@ -204,7 +203,7 @@ class PluginManager:
 
         # Check if plugin scaned by manager
         if plugin.basedir is None:
-            raise RuntimeError('cannot get plugin basedir.')
+            raise RuntimeError('cannot get plugin basedir')
 
         plugin.load(self._app, self._config)
         self._loaded[plugin] = plugin.basedir
@@ -212,22 +211,19 @@ class PluginManager:
         signals.loaded.send(self, plugin)
 
     def start(self, plugin: Plugin) -> None:
-        if not plugin.status in (PluginStatus.Loaded, PluginStatus.Stopped):
-            return
+        plugin.status.assert_('start')
         plugin.register(self._app, self._config)
         self._app.logger.info(f'started plugin: {plugin.name}')
         signals.started.send(self, plugin)
 
     def stop(self, plugin: Plugin) -> None:
-        if not plugin.status == PluginStatus.Running:
-            return
+        plugin.status.assert_('stop')
         plugin.unregister(self._app, self._config)
         self._app.logger.info(f'stopped plugin: {plugin.name}')
         signals.stopped.send(self, plugin)
 
     def unload(self, plugin: Plugin) -> None:
-        if not plugin.status in (PluginStatus.Stopped, PluginStatus.Loaded):
-            return
+        plugin.status.assert_('unload')
         plugin.clean(self._app, self._config)
         self._loaded.pop(plugin)
         self._app.logger.info(f'unloaded plugin: {plugin.name}')

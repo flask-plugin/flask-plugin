@@ -1,5 +1,4 @@
 
-import enum
 import inspect
 import typing as t
 
@@ -10,32 +9,7 @@ from flask.scaffold import Scaffold
 from flask.wrappers import Response
 
 from . import utils
-
-
-@enum.unique
-class PluginStatus(enum.Enum):
-    """Plugin Status Enumerating
-    Plugin status could be 4 `enum.Enum` values:
-        0. Loaded
-            When we called `__import__` for importing plugin moudule
-            and all view function has been added to `Plugin.endpoints`.
-            But in `app.url_map` there's no record added.
-        1. Running
-            After called `Plugin.register` all mapping from endpoint to function
-            will be added to `app.url_map` so plugin will run functionally.
-        2. Stopped
-            After we called `Plugin.unregister`, all record inside `app.url_map`
-            will still exist, but mapping from endpoints to view functions in `app.view_functions` 
-            will be point to `Plugin.notfound` which will directly return HTTP 404.
-        3. Unloaded
-            After calling `Plugin.clean`, records in `app.url_map` will be remapped,
-            and `app.view_functions` will also be removed.
-            All data inner `Plugin` instance will be cleaned also.
-    """
-    Loaded = 0
-    Running = 1
-    Stopped = 2
-    Unloaded = 3
+from . import states
 
 
 class Plugin(Scaffold):
@@ -51,7 +25,6 @@ class Plugin(Scaffold):
     domain = utils.property_('domain', type_=str)
     info = utils.property_('info', type_=utils.attrdict)
     basedir = utils.property_('basedir', type_=str, writable=True)
-    status = utils.property_('status', type_=PluginStatus, writable=True)
 
     def __init__(
         self,
@@ -111,7 +84,7 @@ class Plugin(Scaffold):
                 raise ValueError('cannot inspect module name.')
 
         self._id, self._basedir = id_, None
-        self._status = PluginStatus.Unloaded
+        self.status = states.StateMachine(states.TransferTable)
         self._domain = domain if domain else self._make_domain_by_name(name)
         if '.' in self._domain:
             raise ValueError("plugin 'domain' cannot contain '.'")
@@ -163,7 +136,7 @@ class Plugin(Scaffold):
                 name, target, prefix='_prepared_handlers_')
 
     def __repr__(self) -> str:
-        return f'<Plugin registered at {self._domain} - {self._status.name}>'
+        return f'<Plugin registered at {self._domain} - {self.status.value.name}>'
 
     def __hash__(self) -> int:
         return hash(self._id)
@@ -177,7 +150,7 @@ class Plugin(Scaffold):
         Returns:
             t.Set[str]: all endpoints.
         """
-        if self._status == PluginStatus.Unloaded:
+        if self.status.value == states.PluginStatus.Unloaded:
             return set()
         return self._endpoints
 
@@ -399,7 +372,7 @@ class Plugin(Scaffold):
     def export_status_to_dict(self) -> t.Dict:
         return {
             'id': self._id,
-            'status': self._status.name,
+            'status': self.status.value.name,
             'domain': self._domain,
             'info': dict(self._info)
         }
@@ -409,19 +382,19 @@ class Plugin(Scaffold):
 
     # Controllers
     def load(self, app: Flask, config: utils.staticdict) -> None:
-        self._status = PluginStatus.Loaded
+        self.status.value = states.PluginStatus.Loaded
 
     def register(self, app: Flask, config: utils.staticdict) -> None:
         for defferd in self._register:
             defferd(app, config)
-        self._status = PluginStatus.Running
+        self.status.value = states.PluginStatus.Running
 
     def unregister(self, app: Flask, config: utils.staticdict) -> None:
         for defferd in self._unregister:
             defferd(app, config)
-        self._status = PluginStatus.Stopped
+        self.status.value = states.PluginStatus.Stopped
 
     def clean(self, app: Flask, config: utils.staticdict) -> None:
+        self.status.value = states.PluginStatus.Unloaded
         for _key, function in self._clean.items():
             function(app, config)
-        self._status = PluginStatus.Unloaded
