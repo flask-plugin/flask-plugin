@@ -10,6 +10,7 @@ from flask.globals import request
 from jinja2.loaders import FileSystemLoader
 
 from . import utils
+from . import signals
 from .plugin import Plugin, PluginStatus
 
 
@@ -203,19 +204,23 @@ class PluginManager:
 
         plugin.load(self._app, self._config)
         self._loaded[plugin] = plugin.basedir
+        signals.loaded.send(self, plugin)
 
     def start(self, plugin: Plugin) -> None:
         if not plugin.status in (PluginStatus.Loaded, PluginStatus.Stopped):
             return
         plugin.register(self._app, self._config)
+        signals.started.send(self, plugin)
 
     def stop(self, plugin: Plugin) -> None:
         if not plugin.status == PluginStatus.Running:
             return
         plugin.unregister(self._app, self._config)
+        signals.stopped.send(self, plugin)
 
     def unload(self, plugin: Plugin) -> None:
         if not plugin.status in (PluginStatus.Stopped, PluginStatus.Loaded):
             return
         plugin.clean(self._app, self._config)
         self._loaded.pop(plugin)
+        signals.unloaded.send(self, plugin)
