@@ -3,10 +3,10 @@ import enum
 import inspect
 import typing as t
 
+import flask.typing as ft
 from flask import abort
 from flask.app import Flask
 from flask.scaffold import Scaffold
-import flask.typing as ft
 from flask.wrappers import Response
 
 from . import utils
@@ -58,8 +58,8 @@ class Plugin(Scaffold):
 
         # Plugin parameters
         id_: str,
+        name: str,
         domain: str,
-        name: str = 'Plugin',
         author: str = 'Anonymous',
         description: str = '',
         version: t.Tuple[int, int, int] = (0, 0, 0),
@@ -104,10 +104,6 @@ class Plugin(Scaffold):
             it will raise `ValueError`.
         """
 
-        # Check domain name without '.'
-        if "." in domain:
-            raise ValueError("'domain' may not contain a dot '.' character.")
-
         # Get caller stack info and module using `inspect` module.
         if not import_name:
             import_name = inspect.stack()[1][0].f_locals.get('__name__')
@@ -117,10 +113,13 @@ class Plugin(Scaffold):
         self._id, self._basedir = id_, None
         self._status = PluginStatus.Unloaded
         self._domain = domain if domain else self._make_domain_by_name(name)
+        if '.' in self._domain:
+            raise ValueError("plugin 'domain' cannot contain '.'")
+        if not domain:
+            raise ValueError("empty puugin 'domain' not allowed")
 
         # Editable information dict for end-user
         self._info = utils.attrdict({
-            'name': name,
             'author': author,
             'version': version,
             'description': description
@@ -139,6 +138,7 @@ class Plugin(Scaffold):
         super().__init__(import_name, static_folder=static_folder,
                          static_url_path=static_url_path, root_path=root_path,
                          template_folder=template_folder)
+        self.name = name
 
         # Add static file sending support
         if static_folder:

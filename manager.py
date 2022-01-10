@@ -54,9 +54,11 @@ class PluginManager:
         @self._blueprint.before_request
         def _replace_jinja_loader():
             app.jinja_env.loader = self._dynamic_select_jinja_loader()
+            app.logger.debug(f'switched into plugin jinja loader: {app.jinja_env.loader}')
         @self._blueprint.after_request
         def _restore_jinja_loader(response):
             app.jinja_env.loader = app.jinja_loader
+            app.logger.debug(f'switched to app jinja loader: {app.jinja_loader}')
             return response
 
         # Register blueprint into app
@@ -126,7 +128,7 @@ class PluginManager:
         if not any((id_, domain, name)):
             return None
         for plugin in self.plugins:
-            if plugin.id_ == id_ or plugin.domain == domain or plugin.info.name == name:
+            if plugin.id_ == id_ or plugin.domain == domain or plugin.name == name:
                 return plugin
 
     def scan(self) -> t.Iterable[Plugin]:
@@ -164,11 +166,13 @@ class PluginManager:
                 # Check if plugin module contains `plugin` variable
                 if not hasattr(module, 'plugin'):
                     raise ImportError('module does not have plugin instance.')
-            except ImportError:
+            except (ImportError, FileNotFoundError):
+                self._app.logger.warn(f'failed to import plugin: {os.path.basename(directory)}')
                 continue
 
             # Bind `basedir` into plugin module
             module.plugin.basedir = basedir
+            self._app.logger.info(f'imported plugin: {module.plugin.name}')
             yield module.plugin
 
     def _load_config(self, app: Flask) -> utils.staticdict:
@@ -204,18 +208,21 @@ class PluginManager:
 
         plugin.load(self._app, self._config)
         self._loaded[plugin] = plugin.basedir
+        self._app.logger.info(f'loaded plugin: {plugin.name}')
         signals.loaded.send(self, plugin)
 
     def start(self, plugin: Plugin) -> None:
         if not plugin.status in (PluginStatus.Loaded, PluginStatus.Stopped):
             return
         plugin.register(self._app, self._config)
+        self._app.logger.info(f'started plugin: {plugin.name}')
         signals.started.send(self, plugin)
 
     def stop(self, plugin: Plugin) -> None:
         if not plugin.status == PluginStatus.Running:
             return
         plugin.unregister(self._app, self._config)
+        self._app.logger.info(f'stopped plugin: {plugin.name}')
         signals.stopped.send(self, plugin)
 
     def unload(self, plugin: Plugin) -> None:
@@ -223,4 +230,5 @@ class PluginManager:
             return
         plugin.clean(self._app, self._config)
         self._loaded.pop(plugin)
+        self._app.logger.info(f'unloaded plugin: {plugin.name}')
         signals.unloaded.send(self, plugin)
