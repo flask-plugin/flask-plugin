@@ -5,6 +5,13 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Python: Test Flask-Plugin",
+            "type": "python",
+            "request": "launch",
+            "module": "flask_plugin.test.run",
+            "args": ["--level=2"]
+        },
+        {
             "name": "Python: Debug Flask-Plugin",
             "type": "python",
             "request": "launch",
