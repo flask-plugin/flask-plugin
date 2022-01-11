@@ -372,6 +372,7 @@ class Plugin(Scaffold):
     def export_status_to_dict(self) -> t.Dict:
         return {
             'id': self._id,
+            'name': self.name,
             'status': self.status.value.name,
             'domain': self._domain,
             'info': dict(self._info)

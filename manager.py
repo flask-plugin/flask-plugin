@@ -169,6 +169,8 @@ class PluginManager:
                 if not hasattr(module, 'plugin'):
                     raise ImportError('module does not have plugin instance.')
             except (ImportError, FileNotFoundError):
+                if self._app.propagate_exceptions:
+                    raise
                 self._app.logger.warn(f'failed to import plugin: {os.path.basename(directory)}')
                 continue
 
