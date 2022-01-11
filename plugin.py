@@ -227,7 +227,7 @@ class Plugin(Scaffold):
 
         # Deferred functions
         def _register_url_rule(app: Flask, config: utils.staticdict) -> None:
-            full_url = '/' + config.blueprint + '/' + self._domain + '/' + rule
+            full_url = '/' + config.blueprint + '/' + self._domain + rule
             full_endpoint = config.blueprint + '.' + endpoint
             if full_endpoint in app.view_functions and view_func:
                 app.view_functions[full_endpoint] = view_func

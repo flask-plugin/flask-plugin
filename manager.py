@@ -1,5 +1,6 @@
 
 import importlib.util as imp
+from itertools import chain
 import os.path
 import typing as t
 
@@ -56,11 +57,13 @@ class PluginManager:
         @self._blueprint.before_request
         def _replace_jinja_loader():
             app.jinja_env.loader = self._dynamic_select_jinja_loader()
-            app.logger.debug(f'switched into plugin jinja loader: {app.jinja_env.loader}')
+            searchpath = app.jinja_env.loader.searchpath if app.jinja_env.loader else ''
+            app.logger.debug(f'switched into plugin jinja loader: {searchpath}')
         @self._blueprint.after_request
         def _restore_jinja_loader(response):
             app.jinja_env.loader = app.jinja_loader
-            app.logger.debug(f'switched to app jinja loader: {app.jinja_loader}')
+            searchpath = app.jinja_loader.searchpath if app.jinja_loader else ''
+            app.logger.debug(f'switched to app jinja loader: {searchpath}')
             return response
 
         # Register blueprint into app
@@ -112,6 +115,10 @@ class PluginManager:
         ]
 
     @property
+    def domain(self) -> str:
+        return self._config.blueprint
+
+    @property
     def plugins(self) -> t.Iterable[Plugin]:
         """Iter all plugins.
         Firstly iter all loaded plugins, then use `self._scan` for scanning
@@ -121,9 +128,7 @@ class PluginManager:
         Returns:
             t.Iterable[Plugin]: plugins.
         """
-        for plugin in self._loaded:
-            yield plugin
-        for plugin in self.scan():
+        for plugin in chain(self.scan(), self._loaded.copy()):
             yield plugin
 
     def find(self, id_: str = None, domain: str = None, name: str = None) -> t.Optional[Plugin]:
@@ -155,7 +160,11 @@ class PluginManager:
                 basedir = os.path.basename(directory)
                 if basedir in self._loaded.values():
                     continue
+                
+                # Define modname when load from app module
                 modname = self._config.directory + '.' + basedir
+                if self._app.import_name != '__main__':
+                    modname = self._app.import_name + '.' + modname
                 file = directory.rstrip('/') + '/__init__.py'
 
                 # Load module using `importlib`
