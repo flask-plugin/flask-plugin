@@ -395,6 +395,6 @@ class Plugin(Scaffold):
         self.status.value = states.PluginStatus.Stopped
 
     def clean(self, app: Flask, config: utils.staticdict) -> None:
-        self.status.value = states.PluginStatus.Unloaded
         for _key, function in self._clean.items():
             function(app, config)
+        self.status.value = states.PluginStatus.Unloaded
