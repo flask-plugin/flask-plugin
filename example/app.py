@@ -6,7 +6,7 @@ app = Flask(__name__)
 manager = PluginManager(app)
 plugin = manager.find(id_='347336b4fcdd447985aec57f2bc5793c')
 if plugin:
-    # manager.load(plugin)
+    manager.load(plugin)
     manager.start(plugin)
 
 @app.route('/api', methods=['GET'])

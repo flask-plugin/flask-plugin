@@ -73,6 +73,7 @@ class StateMachine:
         for rule, dest in self._transfers.items():
             if rule[0] == self._current and dest == state:
                 self._current = state
+                return
         raise RuntimeError(
             f"cannot transfer state from '{self._current.name}' to '{state}'")
 
@@ -81,17 +82,14 @@ class StateMachine:
             return True
         return False
 
-    def assert_(self, operation):
+    def assert_allow(self, operation):
         if not self.allow(operation):
             raise RuntimeError(
                 f"operation '{operation}' not allowed in state '{self._current.name}'")
 
     def limit(self, function: t.Callable, operation: str) -> t.Callable:
         if self.allow(operation):
-            def _decorator(*args, **kwargs):
-                function(*args, **kwargs)
-                self._current = self._transfers[self._current, operation]
-            return _decorator
+            return function
 
         def _empty(*_, **kwargs):
             raise RuntimeError(

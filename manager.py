@@ -37,6 +37,8 @@ class PluginManager:
         ]
     })
 
+    ConfigPrefix = 'plugins_'
+
     def __init__(self, app: Flask = None) -> None:
         self._loaded: t.Dict[Plugin, str] = dict()
         if not app is None:
@@ -189,13 +191,14 @@ class PluginManager:
         """
         config = dict()
         for key in self.DefaultConfig:
-            config[key] = app.config.get(key.upper(), self.DefaultConfig[key])
-            app.config[key] = config[key]
+            setting_key = self.ConfigPrefix.upper() + key.upper()
+            config[key] = app.config.get(setting_key, self.DefaultConfig[key])
+            app.config[setting_key] = config[key]
         return utils.staticdict(config)
 
     # Controllers
     def load(self, plugin: Plugin) -> None:
-        plugin.status.assert_('load')
+        plugin.status.assert_allow('load')
 
         # Check if duplicated plugin id
         if plugin in self._loaded:
@@ -211,19 +214,19 @@ class PluginManager:
         signals.loaded.send(self, plugin)
 
     def start(self, plugin: Plugin) -> None:
-        plugin.status.assert_('start')
+        plugin.status.assert_allow('start')
         plugin.register(self._app, self._config)
         self._app.logger.info(f'started plugin: {plugin.name}')
         signals.started.send(self, plugin)
 
     def stop(self, plugin: Plugin) -> None:
-        plugin.status.assert_('stop')
+        plugin.status.assert_allow('stop')
         plugin.unregister(self._app, self._config)
         self._app.logger.info(f'stopped plugin: {plugin.name}')
         signals.stopped.send(self, plugin)
 
     def unload(self, plugin: Plugin) -> None:
-        plugin.status.assert_('unload')
+        plugin.status.assert_allow('unload')
         plugin.clean(self._app, self._config)
         self._loaded.pop(plugin)
         self._app.logger.info(f'unloaded plugin: {plugin.name}')
