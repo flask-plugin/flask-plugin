@@ -31,7 +31,7 @@ class Plugin(Scaffold):
 
         # Plugin parameters
         id_: str,
-        handler_name: str,
+        name: str,
         domain: str,
         author: str = 'Anonymous',
         description: str = '',
@@ -86,7 +86,7 @@ class Plugin(Scaffold):
 
         self._id, self._basedir = id_, None
         self.status = states.StateMachine(states.TransferTable)
-        self._domain = domain if domain else self._make_domain_by_name(handler_name)
+        self._domain = domain if domain else self._make_domain_by_name(name)
         if '.' in self._domain:
             raise ValueError("plugin 'domain' cannot contain '.'")
         if not domain:
@@ -112,7 +112,7 @@ class Plugin(Scaffold):
         super().__init__(import_name, static_folder=static_folder,
                          static_url_path=static_url_path, root_path=root_path,
                          template_folder=template_folder)
-        self.name = handler_name
+        self.name = name
 
         # Add static file sending support
         if static_folder:

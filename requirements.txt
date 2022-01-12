@@ -1,0 +1,4 @@
+flask
+pylint
+coverage
+codecov
