@@ -21,6 +21,5 @@ jobs:
         coverage run --source . -m test.run
         coverage xml *.py
     - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v2
       run: |
         codecov --token ${{ secrets.CODECOV_TOKEN }}
