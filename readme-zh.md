@@ -3,29 +3,29 @@
 ![Python](https://img.shields.io/badge/Python-3.7%2B-blue)![License](https://img.shields.io/github/license/guiqiqi/flask-plugin)![test](https://github.com/guiqiqi/flask-plugin/actions/workflows/unittest.yml/badge.svg)![pylint](https://github.com/guiqiqi/flask-plugin/actions/workflows/pylint.yml/badge.svg)[![codecov](https://codecov.io/gh/guiqiqi/flask-plugin/branch/main/graph/badge.svg?token=DE329H13JM)](https://codecov.io/gh/guiqiqi/flask-plugin)
 
 
-[中文版本](https://github.com/guiqiqi/flask-plugin/blob/main/readme-zh.md)
+[English Version](https://github.com/guiqiqi/flask-plugin/blob/main/readme.md)
 
-An extension to add support of Plugin in Flask.
+一个用于支持插件功能的 Flask 扩展。
 
-**Features: **
+**它能提供什么：**
 
-1. Define plugin routes in the same way as Application, Blueprint, while providing all the Flask features (Template rendering, url_for, message flashing, signals, etc.)
-2. Each plugin can be started, stopped, reloaded while Flask is *running*.
-3. Configured with Flask, no need to configure separately.
-4. Auto-discovery and management for plugins.
+1. 与 Application、Blueprint 相同的方式定义插件路由，同时提供所有的 Flask 功能（模板渲染、URL 构造、消息闪现、信号等等）
+1. 每个插件都可以在 Flask *运行时* 启动、停止、重载。
+4. 与 Flask 一同配置，无需加载单独的配置文件。
+5. 插件自动发现与管理。
 
-## Install
+## 安装
 
-Download from git repo and install:
+从代码仓库下载并安装：
 
 ```bash
 git clone https://github.com/guiqiqi/flask-plugin
 python3 flask-plugin/setup.py install
 ```
 
-## Quick start
+## 快速开始
 
-1. Entering the `example` directory, you will find the following directory structure, the plugin `hello` inside  `plugins` directory:
+1. 进入 `example` 目录，查看目录结构，可以看到在 `plugins` 目录下有一个名为 `hello` 的插件：
 
    ```
    example
@@ -38,8 +38,8 @@ python3 flask-plugin/setup.py install
            └── templates
                └── index.html
    ```
-
-2. The plugin manager is loaded in the `app.py` file, and the hello plugin is started:
+   
+2. 在 `app.py` 文件中加载插件管理器，并启动 `hello` 插件：
 
    ```python
    from flask import Flask
@@ -57,7 +57,7 @@ python3 flask-plugin/setup.py install
    app.run()
    ```
 
-3. Instantiated the `Plugin` in `SayHello/__init__.py` and define the route as you did in `Flask`:
+2. 在 `SayHello/__init__.py` 中实例化了 `Plugin` 类，并像在 `Flask` 中一样定义路由：
 
    ```python
    from flask_plugin import Plugin
@@ -76,21 +76,22 @@ python3 flask-plugin/setup.py install
    @plugin.route('/', methods=['GET'])
    def index():
        return render_template('index.html', name='Anonymous')
-
-4. Accessing `/plugins/hello/` and see the greeting:
+   ```
+   
+4. 访问 `/plugins/hello/` ，看到一个给匿名用户的问候：
 
    ```
    Hello Anonymous!
    ```
 
-   Stop the plugin with accessing `/api/stop/347336b4fcdd447985aec57f2bc5793c`, check url above again, and get a `HTTP 404` error.
+   通过访问  `/api/stop/347336b4fcdd447985aec57f2bc5793c` 停止插件，再次检查上面的链接，会得到一个 `HTTP 404` 错误。
 
-## Documentation
+## 文档与使用手册
 
-Developing...
+编写中...
 
-## Thanks
+## 致谢
 
-This project is based on many open source projects of the [Pallets group](https://palletsprojects.com/), and I would like to express my thanks here.
+该项目基于 [Pallets项目组](https://palletsprojects.com/) 的诸多开源项目，在此表示感谢.
 
-Also thanks to my family and friends.
+同时感谢我的家人和朋友们。
