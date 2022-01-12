@@ -41,7 +41,7 @@ class PluginManager:
     ConfigPrefix = 'plugins_'
 
     def __init__(self, app: Flask = None) -> None:
-        self._loaded: t.Dict[Plugin, str] = dict()
+        self._loaded: t.Dict[Plugin, str] = {}
         if not app is None:
             self.init_app(app)
 
@@ -72,7 +72,8 @@ class PluginManager:
         # Register `app.plugin_manager`
         app.plugin_manager = self  # type: ignore
 
-    def _dynamic_select_jinja_loader(self) -> t.Optional[FileSystemLoader]:
+    @staticmethod
+    def _dynamic_select_jinja_loader() -> t.Optional[FileSystemLoader]:
         """Replace raw `app.jinja_env.loader`.
         If routing to an exist plugin, `request.blueprints` will be list like:
             ```
@@ -92,7 +93,7 @@ class PluginManager:
         """
         # Obtaining `app.plugin_manager` object
         if hasattr(current_app, 'plugin_manager'):
-            manager: PluginManager = current_app.plugin_manager  # type: ignore
+            manager: 'PluginManager' = current_app.plugin_manager  # type: ignore
         else:
             return None
 
@@ -137,6 +138,7 @@ class PluginManager:
         for plugin in self.plugins:
             if plugin.id_ == id_ or plugin.domain == domain or plugin.name == name:
                 return plugin
+        return None
 
     def scan(self) -> t.Iterable[Plugin]:
         """Scan dir configures in `config.directory`, if directory name previous
@@ -146,7 +148,7 @@ class PluginManager:
         if not, continue scanning process.
 
         Yields:
-            Iterator[t.Iterable[t.Tuple[Plugin, str]]]: couple `Plugin` instance with plugin dirname.
+            Iterator[t.Iterable[t.Tuple[Plugin, str]]]: couple `Plugin` with plugin dirname.
         """
         for directory in utils.listdir(
             os.path.join(self._app.root_path, self._config.directory),
@@ -200,7 +202,7 @@ class PluginManager:
         Returns:
             utils.staticdict: loaded config.
         """
-        config = dict()
+        config = {}
         for key in self.DefaultConfig:
             setting_key = self.ConfigPrefix.upper() + key.upper()
             config[key] = app.config.get(setting_key, self.DefaultConfig[key])

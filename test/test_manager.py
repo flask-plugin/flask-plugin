@@ -13,7 +13,7 @@ class TestManagerApp(unittest.TestCase):
         self.manager: PluginManager = self.app.plugin_manager  # type: ignore
 
     def test_plugins_not_empty(self) -> None:
-        self.assertNotEqual(self.manager.plugins, list())
+        self.assertNotEqual(self.manager.plugins, [])
 
     def test_scan_plugins_excludes(self) -> None:
         for plugin in self.manager.scan():
@@ -30,7 +30,7 @@ class TestManagerApp(unittest.TestCase):
                 self.manager.load(plugin)
             except RuntimeError as e:
                 self.fail(f"load plugin failed: {plugin.name}, {str(e.args[0])}")
-        self.assertEqual(list(self.manager.scan()), list())
+        self.assertEqual(list(self.manager.scan()), [])
 
     def test_find_plugins(self) -> None:
         self.test_load_plugins()

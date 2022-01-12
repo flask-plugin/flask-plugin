@@ -31,7 +31,7 @@ class Plugin(Scaffold):
 
         # Plugin parameters
         id_: str,
-        name: str,
+        handler_name: str,
         domain: str,
         author: str = 'Anonymous',
         description: str = '',
@@ -68,9 +68,10 @@ class Plugin(Scaffold):
 
                 static_url_path (str, optional): static url path. Defaults to None.
 
-                root_path (str, optional): when you initialize the plugin with a not `__name__` parameter 
-                `import_name`, you should pass this parameter as your plugin directory,
-                because flask will unable to locate your plugin. Defaults to None.
+                root_path (str, optional): when you initialize the plugin with 
+                a not `__name__` parameter `import_name`, you should pass this 
+                parameter as your plugin directory, because flask will unable to 
+                locate your plugin. Defaults to None.
 
         Raises:
             ValueError: if we could not use `inspect` to get valid module `__name__`
@@ -85,7 +86,7 @@ class Plugin(Scaffold):
 
         self._id, self._basedir = id_, None
         self.status = states.StateMachine(states.TransferTable)
-        self._domain = domain if domain else self._make_domain_by_name(name)
+        self._domain = domain if domain else self._make_domain_by_name(handler_name)
         if '.' in self._domain:
             raise ValueError("plugin 'domain' cannot contain '.'")
         if not domain:
@@ -100,25 +101,25 @@ class Plugin(Scaffold):
 
         # Deferred function, executing when registering into Manager
         self._register: t.List[t.Callable[[
-            Flask, utils.staticdict], None]] = list()
+            Flask, utils.staticdict], None]] = []
         self._unregister: t.List[t.Callable[[
-            Flask, utils.staticdict], None]] = list()
+            Flask, utils.staticdict], None]] =[]
         self._clean: t.Dict[str, t.Callable[[
-            Flask, utils.staticdict], None]] = dict()
+            Flask, utils.staticdict], None]] = {}
         self._endpoints = set()
 
         # Initialize Scaffold
         super().__init__(import_name, static_folder=static_folder,
                          static_url_path=static_url_path, root_path=root_path,
                          template_folder=template_folder)
-        self.name = name
+        self.name = handler_name
 
         # Add static file sending support
         if static_folder:
             self.add_url_rule(
                 f'{self.static_url_path}/<path:filename>',
                 endpoint='static',
-                view_func=lambda **kw: self.send_static_file(**kw)
+                view_func=self.send_static_file
             )
 
         # Add context handlers manager
@@ -130,10 +131,10 @@ class Plugin(Scaffold):
             'url_value_preprocessor': 'url_value_preprocessors',
             'url_defaults': 'url_default_functions'
         }
-        for name, target in context_handlers_and_preprocessors.items():
-            self._decorable_setter(name, prefix='_prepared_handlers_')
+        for handler_name, target in context_handlers_and_preprocessors.items():
+            self._decorable_setter(handler_name, prefix='_prepared_handlers_')
             self._manage_context_handlers_and_processors(
-                name, target, prefix='_prepared_handlers_')
+                handler_name, target, prefix='_prepared_handlers_')
 
     def __repr__(self) -> str:
         return f'<Plugin registered at {self._domain} - {self.status.value.name}>'
@@ -306,7 +307,7 @@ class Plugin(Scaffold):
 
     def register_error_handler(
         self, code_or_exception: t.Union[t.Type[ft.GenericException], int],
-        handler: "ft.ErrorHandlerCallable[ft.GenericException]"
+        f: "ft.ErrorHandlerCallable[ft.GenericException]"
     ) -> None:
 
         # Same as `Scaffold.register_error_handler`
@@ -323,7 +324,7 @@ class Plugin(Scaffold):
         def _register_error_handler(app: Flask, config: utils.staticdict) -> None:
             endpoint = config.blueprint + '.' + self._domain
             app.error_handler_spec[endpoint][code][exc_class] = t.cast(
-                "ft.ErrorHandlerCallable[Exception]", handler)
+                "ft.ErrorHandlerCallable[Exception]", f)
 
         def _clean_error_handler(app: Flask, config: utils.staticdict) -> None:
             endpoint = config.blueprint + '.' + self._domain

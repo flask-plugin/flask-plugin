@@ -31,8 +31,7 @@ class attrdict(dict):
     def __getattribute__(self, name: str) -> t.Any:
         if name in dir(dict):
             return super().__getattribute__(name)
-        else:
-            return super().__getitem__(name)
+        return super().__getitem__(name)
 
 
 class staticdict(attrdict):
