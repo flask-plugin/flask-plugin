@@ -8,7 +8,7 @@
             "name": "Python: Test Flask-Plugin",
             "type": "python",
             "request": "launch",
-            "module": "flask_plugin.test.run",
+            "module": "test.run",
             "args": ["--level=2"]
         },
         {
