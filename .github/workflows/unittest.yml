@@ -19,6 +19,7 @@ jobs:
         cd flask_plugin
         coverage run --source . -m test.run
         coverage xml *.py
+        cd .. && mv flask_plugin ${{ github.event.repository.name }}
     - name: Upload coverage to Codecov
       run: |
         codecov --token ${{ secrets.CODECOV_TOKEN }}
