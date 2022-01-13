@@ -1,11 +1,12 @@
 
+import os
 from flask import Flask, jsonify, abort
 from flask_plugin import PluginManager
 
 app = Flask(__name__)
+app.secret_key = os.urandom(12)
 manager = PluginManager(app)
-plugin = manager.find(id_='347336b4fcdd447985aec57f2bc5793c')
-if plugin:
+for plugin in manager.plugins:
     manager.load(plugin)
     manager.start(plugin)
 
