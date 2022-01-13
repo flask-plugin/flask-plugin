@@ -1,4 +1,4 @@
-from flask_plugin import Plugin
+from src import Plugin
 from flask import redirect, url_for, render_template, abort
 
 plugin = Plugin(

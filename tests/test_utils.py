@@ -1,7 +1,7 @@
 
 import unittest
 
-from flask_plugin import utils
+from src import utils
 
 
 class TestUtils(unittest.TestCase):

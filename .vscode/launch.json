@@ -5,14 +5,24 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python: Test Flask-Plugin",
+            "name": "Package Flask-Plugin",
             "type": "python",
             "request": "launch",
-            "module": "test.run",
-            "args": ["--level=2"]
+            "program": "setup.py",
+            "console": "integratedTerminal",
+            "args": ["clean", "--all", "build"]
         },
         {
-            "name": "Python: Debug Flask-Plugin",
+            "name": "Test Flask-Plugin",
+            "type": "python",
+            "request": "launch",
+            "module": "tests.run",
+            "args": [
+                "--level=2"
+            ]
+        },
+        {
+            "name": "Develop Flask-Plugin",
             "type": "python",
             "request": "launch",
             "program": "example/app.py",

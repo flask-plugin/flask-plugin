@@ -2,7 +2,13 @@
 import os
 import sys
 import unittest
-sys.path.insert(0, os.path.abspath('../'))
+dirname = os.path.dirname(__file__)
+sys.path.append(os.path.realpath(os.path.join(dirname, '..')))
+
+try:
+    __import__('src')
+except ImportError:
+    raise ImportError('cannot find src package')
 
 
 class SequentialTestLoader(unittest.TestLoader):
@@ -13,7 +19,7 @@ class SequentialTestLoader(unittest.TestLoader):
         return test_names
 
 
-def _run_tests(verbosity: int = 2) -> None:
+def suite() -> unittest.TestSuite:
 
     from . import test_states
     from . import test_base
@@ -35,5 +41,4 @@ def _run_tests(verbosity: int = 2) -> None:
     suite = unittest.TestSuite()
     for testcase in testcases:
         suite.addTests(loader.loadTestsFromTestCase(testcase))
-    runner = unittest.TextTestRunner(verbosity=verbosity)
-    runner.run(suite)
+    return suite

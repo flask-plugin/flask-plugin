@@ -1,7 +1,8 @@
 
 import unittest
 
-from flask_plugin import PluginManager, PluginStatus
+from src import PluginManager
+from src import states
 
 from .app import init_app
 
@@ -36,7 +37,7 @@ class TestPluginApp(unittest.TestCase):
         for plugin_info in data:
             for key in self.RequiredPluginInfoKey:
                 self.assertIn(key, plugin_info)
-            self.assertEqual(plugin_info['status'], PluginStatus.Loaded.name)
+            self.assertEqual(plugin_info['status'], states.PluginStatus.Loaded.name)
 
     def test_blueprint_no_routing(self) -> None:
         self.assertEqual(self.client.get('/plugins').status_code, 404)

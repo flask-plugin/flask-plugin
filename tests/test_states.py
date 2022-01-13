@@ -2,7 +2,7 @@
 import typing as t
 import unittest
 
-from flask_plugin import states
+from src import states
 
 
 class TestStates(unittest.TestCase):

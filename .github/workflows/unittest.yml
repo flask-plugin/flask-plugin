@@ -15,11 +15,8 @@ jobs:
         pip install -r requirements.txt
     - name: Run tests and collect coverage
       run: |
-        cd .. && mv ${{ github.event.repository.name }} flask_plugin
-        cd flask_plugin
-        coverage run --source . -m test.run
-        coverage xml *.py
-        cd .. && mv flask_plugin ${{ github.event.repository.name }}
+        coverage run --source src -m tests.run
+        coverage xml src/*.py
     - name: Upload coverage to Codecov
       run: |
         codecov --token ${{ secrets.CODECOV_TOKEN }}

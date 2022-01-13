@@ -23,7 +23,15 @@ git clone https://github.com/guiqiqi/flask-plugin
 python3 flask-plugin/setup.py install
 ```
 
-## Quick start
+Or download Wheel package from [releases](https://github.com/guiqiqi/flask-plugin/releases/) and install using pip:
+
+```bash
+pip install flask_plugin-{{ VERSION }}-py3-none-any.whl
+```
+
+which `{{ VERSION }}` is release version.
+
+## Quick Start
 
 1. Entering the `example` directory, you will find the following directory structure, the plugin `hello` inside  `plugins` directory:
 
@@ -85,9 +93,7 @@ python3 flask-plugin/setup.py install
 
    Stop the plugin with accessing `/api/stop/347336b4fcdd447985aec57f2bc5793c`, check url above again, and get a `HTTP 404` error.
 
-## Documentation
-
-Developing...
+Complete documentation is now developing.
 
 ## Thanks
 

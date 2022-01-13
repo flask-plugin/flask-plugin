@@ -1,7 +1,7 @@
 
 import unittest
 
-from flask_plugin import PluginManager
+from src import PluginManager
 
 from .app import init_app
 
@@ -17,7 +17,8 @@ class TestManagerApp(unittest.TestCase):
 
     def test_scan_plugins_excludes(self) -> None:
         for plugin in self.manager.scan():
-            self.assertNotIn(plugin.basedir, self.app.config['PLUGINS_EXCLUDES_DIRECTORY'])
+            self.assertNotIn(
+                plugin.basedir, self.app.config['PLUGINS_EXCLUDES_DIRECTORY'])
 
     def test_no_plugins_loaded(self) -> None:
         all_plugins_name = set(plugin.name for plugin in self.manager.plugins)
@@ -29,7 +30,8 @@ class TestManagerApp(unittest.TestCase):
             try:
                 self.manager.load(plugin)
             except RuntimeError as e:
-                self.fail(f"load plugin failed: {plugin.name}, {str(e.args[0])}")
+                self.fail(
+                    f"load plugin failed: {plugin.name}, {str(e.args[0])}")
         self.assertEqual(list(self.manager.scan()), [])
 
     def test_find_plugins(self) -> None:
@@ -47,7 +49,8 @@ class TestManagerApp(unittest.TestCase):
             try:
                 self.manager.unload(plugin)
             except Exception as e:
-                self.fail(f"unload plugin failed: {plugin.name}, {str(e.args[0])}")
+                self.fail(
+                    f"unload plugin failed: {plugin.name}, {str(e.args[0])}")
 
     def test_reload_and_start_plugins(self) -> None:
         self.test_unload_plugins_after_load()
@@ -56,7 +59,8 @@ class TestManagerApp(unittest.TestCase):
                 self.manager.load(plugin)
                 self.manager.start(plugin)
             except Exception as e:
-                self.fail(f"start plugin failed: {plugin.name}, {str(e.args[0])}")
+                self.fail(
+                    f"start plugin failed: {plugin.name}, {str(e.args[0])}")
 
     def test_stop_plugins(self) -> None:
         self.test_reload_and_start_plugins()
@@ -64,7 +68,8 @@ class TestManagerApp(unittest.TestCase):
             try:
                 self.manager.stop(plugin)
             except Exception as e:
-                self.fail(f"stop plugin failed: {plugin.name}, {str(e.args[0])}")
+                self.fail(
+                    f"stop plugin failed: {plugin.name}, {str(e.args[0])}")
 
     def test_unload_plugins_after_all_processes(self) -> None:
         self.test_stop_plugins()
@@ -72,7 +77,8 @@ class TestManagerApp(unittest.TestCase):
             try:
                 self.manager.unload(plugin)
             except Exception as e:
-                self.fail(f"unload plugin failed: {plugin.name}, {str(e.args[0])}")
+                self.fail(
+                    f"unload plugin failed: {plugin.name}, {str(e.args[0])}")
 
 
 class TestInvalidImportManagerApp(unittest.TestCase):
@@ -92,4 +98,5 @@ class TestNonExistDirectoryManagerApp(unittest.TestCase):
         self.manager: PluginManager = self.app.plugin_manager  # type: ignore
 
     def test_non_exist_direcotry(self) -> None:
-        self.assertRaises(FileNotFoundError, lambda: list(self.manager.plugins))
+        self.assertRaises(FileNotFoundError,
+                          lambda: list(self.manager.plugins))

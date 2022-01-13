@@ -21,7 +21,7 @@ fail-under=7.5
 
 # Files or directories to be skipped. They should be base names, not paths.
 ignore=example, 
-       test
+       tests
 
 # Add files or directories matching the regex patterns to the ignore-list. The
 # regex matches against paths and can be in Posix or Windows format.

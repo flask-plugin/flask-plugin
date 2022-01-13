@@ -23,6 +23,14 @@ git clone https://github.com/guiqiqi/flask-plugin
 python3 flask-plugin/setup.py install
 ```
 
+或者从 [已发布版本](https://github.com/guiqiqi/flask-plugin/releases/) 中下载 Wheel 安装包（*.whl）并使用：
+
+```bash
+pip install flask_plugin-{{ VERSION }}-py3-none-any.whl
+```
+
+其中 `{{ VERISON }}` 代指发布版本号。
+
 ## 快速开始
 
 1. 进入 `example` 目录，查看目录结构，可以看到在 `plugins` 目录下有一个名为 `hello` 的插件：
@@ -86,9 +94,7 @@ python3 flask-plugin/setup.py install
 
    通过访问  `/api/stop/347336b4fcdd447985aec57f2bc5793c` 停止插件，再次检查上面的链接，会得到一个 `HTTP 404` 错误。
 
-## 文档与使用手册
-
-编写中...
+完整的文档正在编写中。
 
 ## 致谢
 

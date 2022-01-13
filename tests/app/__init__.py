@@ -1,7 +1,7 @@
 
 from flask import Flask, jsonify, abort
 from flask.templating import render_template
-from flask_plugin import PluginManager
+from src import PluginManager
 
 from . import config
 
