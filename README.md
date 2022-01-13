@@ -51,10 +51,10 @@ which `{{ VERSION }}` is release version.
 
    ```python
    from flask import Flask
-   from flask_plugin import Manager
+   from flask_plugin import PluginManager
    
    app = Flask(__name__)
-   manager = Manager(app)
+   manager = PluginManager(app)
    plugin = manager.find(id_='347336b4fcdd447985aec57f2bc5793c')
    if plugin:
        manager.load(plugin)
