@@ -3,6 +3,7 @@ import unittest
 
 from src import PluginManager
 from src import states
+from src.plugin import Plugin
 
 from .app import init_app
 
@@ -108,25 +109,35 @@ class TestPluginApp(unittest.TestCase):
         response = self.client.get('/plugins/goodbye/admin')
         self.assertEqual(response.data, b'GOODBYE admin!')
 
-    def test_stopped_all_plugins_index_still_working(self):
+    def test_stoppped_all_plugins_point_notfound(self) -> None:
+        self.start_all_plugins()
+        self.stop_all_plugins()
+        for plugin in self.manager.plugins:
+            plugin_endpoint = self.manager._config.blueprint + plugin.domain
+            for endpoint in self.app.view_functions:
+                if endpoint.startswith(plugin_endpoint):
+                    self.assertEqual(self.app.view_functions[endpoint], Plugin.notfound)
+
+    def test_stopped_all_plugins_index_still_working(self) -> None:
         self.start_all_plugins()
         self.stop_all_plugins()
         data = self.client.get('/api').json
         self.assertNotEqual(data, None)
 
-    def test_unload_plugins_clean_url_map(self):
+    def test_unload_plugins_clean_url_map(self) -> None:
         self.start_all_plugins()
         self.stop_all_plugins()
         self.unload_all_plugins()
         for rule in self.app.url_map.iter_rules():
             self.assertNotIn(self.manager.domain, rule.rule)
 
-    def test_unload_plugin_clean_endpoints(self):
+    def test_unload_plugin_clean_endpoints(self) -> None:
         hello = self.manager.find(domain='hello')
+        assert hello
         self.start_all_plugins()
-        self.assertIn('plugins.hello.raise', self.app.view_functions)
         self.stop_all_plugins()
         self.unload_all_plugins()
-        self.assertNotIn('plugins.hello.raise', self.app.view_functions)
-        if hello:
-            self.assertEqual(len(hello.endpoints), 0)
+        plugin_endpoint = self.manager._config.blueprint + hello.domain
+        for endpoint in self.app.view_functions:
+            if endpoint.startswith(plugin_endpoint):
+                self.fail(f"'{endpoint}' still exists after '{plugin_endpoint}' unloaded")

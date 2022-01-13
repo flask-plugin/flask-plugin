@@ -242,9 +242,6 @@ class Plugin(Scaffold):
                     config.blueprint + '.' + endpoint] = self.notfound
 
         def _clean_url_rule(app: Flask, config: utils.staticdict) -> None:
-            if config.blueprint + '.' + endpoint in app.view_functions:
-                app.view_functions.pop(config.blueprint + '.' + endpoint)
-
             # Remove URL Rule from `app.url_map`
             def _belong_to_plugin(rule):
                 return rule.endpoint.replace(config.blueprint + '.', '') in self._endpoints
@@ -255,11 +252,19 @@ class Plugin(Scaffold):
                 )
             )
             app.url_map = app.url_map_class(filtered)
+
+        def _clean_view_function(app: Flask, config: utils.staticdict) -> None:
+            # Endpoints cleaner should be call here, againist user just used
+            # `self.endpoint` registered functions
+            for endpoint in app.view_functions.copy():
+                if endpoint.startswith(config.blueprint + '.' + self._domain):
+                    app.view_functions.pop(endpoint)
             self._endpoints.clear()
 
         self._register.append(_register_url_rule)
         self._unregister.append(_unregister_url_rule)
         self._record_clean_function('clean_url_rule', _clean_url_rule)
+        self._record_clean_function('clean_view_function', _clean_view_function)
 
     def endpoint(self, endpoint: str) -> t.Callable:
         """Decorate a view function to register it for the given
@@ -290,12 +295,10 @@ class Plugin(Scaffold):
                 app.view_functions[app_view_endpoint] = self.notfound
 
             def _clean_view_function(app: Flask, config: utils.staticdict) -> None:
-                if endpoint in self._endpoints:
-                    self._endpoints.remove(endpoint)
-                app_view_endpoint = '.'.join(
-                    [config.blueprint, self._domain, endpoint])
-                if app_view_endpoint in app.view_functions:
-                    app.view_functions.pop(app_view_endpoint)
+                for endpoint in app.view_functions.copy():
+                    if endpoint.startswith(config.blueprint + '.' + self._domain):
+                        app.view_functions.pop(endpoint)
+                self._endpoints.clear()
 
             self._register.append(_register_view_function)
             self._unregister.append(_unregister_view_function)

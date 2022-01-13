@@ -7,10 +7,9 @@ from .scripts import helpers
 from flask import redirect, url_for, render_template, request, session
 from flask_plugin import Plugin
 import json
-import uuid
 
 plugin = Plugin(
-    id_=uuid.uuid4().hex,
+    id_='334c997a6c4946aaa920f2ffccc27077',
     name='flaskex',
     domain='flaskex',
     static_folder='static',
