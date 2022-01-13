@@ -58,7 +58,9 @@ class PluginManager:
         def _replace_jinja_loader():
             app.jinja_env.loader = self._dynamic_select_jinja_loader()
             searchpath = app.jinja_env.loader.searchpath if app.jinja_env.loader else ''
-            app.logger.debug(f'switched into plugin jinja loader: {searchpath}')
+            app.logger.debug(
+                f'switched into plugin jinja loader: {searchpath}')
+
         @self._blueprint.after_request
         def _restore_jinja_loader(response):
             app.jinja_env.loader = app.jinja_loader
@@ -162,7 +164,7 @@ class PluginManager:
                 basedir = os.path.basename(directory)
                 if basedir in self._loaded.values():
                     continue
-                
+
                 # Define modname when load from app module
                 modname = self._config.directory + '.' + basedir
                 if self._app.import_name != '__main__':
@@ -179,10 +181,12 @@ class PluginManager:
                 # Check if plugin module contains `plugin` variable
                 if not hasattr(module, 'plugin'):
                     raise ImportError('module does not have plugin instance.')
-            except (ImportError, FileNotFoundError):
+            except (ImportError, FileNotFoundError) as error:
                 if self._app.propagate_exceptions:
                     raise
-                self._app.logger.warn(f'failed to import plugin: {os.path.basename(directory)}')
+                self._app.logger.warn(
+                    f'failed import plugin: {os.path.basename(directory)} - {str(error.args[0])}'
+                )
                 continue
 
             # Bind `basedir` into plugin module

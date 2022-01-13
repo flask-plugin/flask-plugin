@@ -33,7 +33,7 @@ class Plugin(Scaffold):
         id_: str,
         name: str,
         domain: str,
-        author: str = 'Anonymous',
+        author: str = '',
         description: str = '',
         version: t.Tuple[int, int, int] = (0, 0, 0),
 
