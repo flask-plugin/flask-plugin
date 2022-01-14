@@ -1,8 +1,9 @@
 
 import unittest
 
-from src import PluginManager
+from src import PluginManager, utils
 from src import states
+from src import plugin
 from src.plugin import Plugin
 
 from .app import init_app
@@ -31,6 +32,15 @@ class TestPluginApp(unittest.TestCase):
         for plugin in self.manager.plugins:
             self.manager.unload(plugin)
 
+    def test_invalid_plugin_domain(self) -> None:
+        self.assertRaises(ValueError, lambda: plugin.Plugin('test', 'test', 'test.test', import_name='__main__'))
+        self.assertRaises(ValueError, lambda: plugin.Plugin('test', 'test', '', import_name='__main__'))
+
+    def test_invalid_plugin_endpoint(self) -> None:
+        for plugin in self.manager.plugins:
+            self.assertRaises(ValueError, lambda: plugin.add_url_rule('/', endpoint='a.b.c'))
+            self.assertRaises(ValueError, lambda: plugin.endpoint('a.b.c'))
+
     def test_index_api(self) -> None:
         data = self.client.get('/api').json
         self.assertNotEqual(data, None)
@@ -54,6 +64,16 @@ class TestPluginApp(unittest.TestCase):
         self.start_all_plugins()
         response = self.client.get('/plugins/hello/endpoints/raise')
         self.assertEqual(response.status_code, 502)
+    
+    def test_started_plugins_endpoints_equal_view_function(self) -> None:
+        self.start_all_plugins()
+        for plugin in self.manager.plugins:
+            perfix_endpoint = self.manager._config.blueprint + '.' + plugin.domain
+            registered_endpoints = []
+            for endpoint in self.app.view_functions:
+                if endpoint.startswith(perfix_endpoint):
+                    registered_endpoints.append(utils.startstrip(endpoint, self.manager._config.blueprint + '.'))
+            self.assertEqual(set(registered_endpoints), set(plugin.endpoints))
 
     def test_started_plugin_html_rendering(self) -> None:
         self.start_all_plugins()
@@ -99,6 +119,20 @@ class TestPluginApp(unittest.TestCase):
         self.assertEqual(response.status_code, 403)
         self.assertEqual(response.data, b'Goodbye Forbidden!')
 
+    def test_started_only_endpoint_plugin(self) -> None:
+        self.start_all_plugins()
+        oe = self.manager.find(domain='oe')
+        assert oe
+        response = self.client.get('/plugins/oe/')
+        self.assertEqual(response.data, b'index')
+
+    def test_same_domain_as_manager_blueprint_plugin(self) -> None:
+        self.start_all_plugins()
+        sdab = self.manager.find(domain='plugins')
+        assert sdab
+        response = self.client.get('/plugins/plugins/test')
+        self.assertEqual(response.data, b'same name works for test')
+
     def test_stopped_one_plugin_404(self) -> None:
         self.start_all_plugins()
         hello = self.manager.find(domain='hello')
@@ -118,6 +152,17 @@ class TestPluginApp(unittest.TestCase):
                 if endpoint.startswith(plugin_endpoint):
                     self.assertEqual(self.app.view_functions[endpoint], Plugin.notfound)
 
+    def test_stopped_plugins_ednpoints_equal_view_function(self) -> None:
+        self.start_all_plugins()
+        self.stop_all_plugins()
+        for plugin in self.manager.plugins:
+            perfix_endpoint = self.manager._config.blueprint + '.' + plugin.domain
+            registered_endpoints = []
+            for endpoint in self.app.view_functions:
+                if endpoint.startswith(perfix_endpoint):
+                    registered_endpoints.append(utils.startstrip(endpoint, self.manager._config.blueprint + '.'))
+            self.assertSetEqual(set(registered_endpoints), set(plugin.endpoints))
+
     def test_stopped_all_plugins_index_still_working(self) -> None:
         self.start_all_plugins()
         self.stop_all_plugins()
@@ -130,6 +175,13 @@ class TestPluginApp(unittest.TestCase):
         self.unload_all_plugins()
         for rule in self.app.url_map.iter_rules():
             self.assertNotIn(self.manager.domain, rule.rule)
+
+    def test_unload_plugins_has_no_endpoints(self) -> None:
+        self.start_all_plugins()
+        self.stop_all_plugins()
+        self.unload_all_plugins()
+        for plugin in self.manager.plugins:
+            self.assertEqual(list(plugin.endpoints), [])
 
     def test_unload_plugin_clean_endpoints(self) -> None:
         hello = self.manager.find(domain='hello')

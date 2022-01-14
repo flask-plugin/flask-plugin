@@ -22,7 +22,7 @@
             "args": [
                 "clean",
                 "--all",
-                "build"
+                "bdist_wheel"
             ]
         },
         {

@@ -1,4 +1,5 @@
 
+import os
 import unittest
 
 from src import utils
@@ -22,12 +23,12 @@ class TestUtils(unittest.TestCase):
 
         self.test_instance = TestClass()
 
-    def test_attrdict_read_write(self):
+    def test_attrdict_read_write(self) -> None:
         self.attrdict.a, self.attrdict.b = 1, 2
         self.assertEqual(self.attrdict.a, 1)
         self.assertEqual(self.attrdict.pop('b'), 2)
 
-    def test_staticdict_write(self):
+    def test_staticdict_write(self) -> None:
         def _set_wrap():
             self.staticdict.c = 1
         def _del_wrap():
@@ -35,8 +36,28 @@ class TestUtils(unittest.TestCase):
         self.assertRaises(RuntimeError, _set_wrap)
         self.assertRaises(RuntimeError, _del_wrap)
 
-    def test_property_decorator(self):
+    def test_property_decorator(self) -> None:
         self.assertEqual(self.test_instance.value, 1)
         self.assertEqual(self.test_instance.hidden, 2)
         self.test_instance.value = 2
         self.assertEqual(self.test_instance.value, 2)
+        del self.test_instance.value
+        self.assertRaises(AttributeError, lambda: self.test_instance.value)
+
+    def test_listdir(self) -> None:
+        workpath = os.path.dirname(os.path.abspath(__file__))
+        self.assertEqual(list(utils.listdir(workpath)), [
+            os.path.join(workpath, 'app')
+        ])
+
+    def test_startstrip_invalid(self) -> None:
+        self.assertEqual(
+            utils.startstrip('plugins.domain.endpoint', 'abc'),
+            'plugins.domain.endpoint'
+        )
+
+    def test_startstrip_valid(self) -> None:
+        self.assertEqual(
+            utils.startstrip('plugins.domain.endpoint', 'plugins.'),
+            'domain.endpoint'
+        )

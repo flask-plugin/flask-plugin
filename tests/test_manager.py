@@ -1,7 +1,7 @@
 
 import unittest
 
-from src import PluginManager
+from src import PluginManager, Plugin
 
 from .app import init_app
 
@@ -42,6 +42,27 @@ class TestManagerApp(unittest.TestCase):
             self.manager.find(domain='hello'),
             self.manager.find(name='hello')
         )
+
+    def test_invalid_find_plugins(self) -> None:
+        self.test_load_plugins()
+        self.assertEqual(self.manager.find(), None)
+        self.assertEqual(self.manager.find(id_='non-exists'), None)
+
+    def test_load_not_scanned_plugin(self) -> None:
+        plugin = Plugin(
+            id_='id', name='name', 
+            domain='domain', import_name='__main__'
+        )
+        self.assertRaises(RuntimeError, lambda: self.manager.load(plugin))
+
+    def test_load_duplicated_id_plugin(self) -> None:
+        self.test_load_plugins()
+        plugin = Plugin(
+            id_='hello', name='Greeting', 
+            domain='hello', import_name='__main__'
+        )
+        plugin.basedir = '.'
+        self.assertRaises(RuntimeError, lambda: self.manager.load(plugin)) 
 
     def test_unload_plugins_after_load(self) -> None:
         self.test_load_plugins()
