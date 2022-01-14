@@ -144,3 +144,18 @@ def listdir(path: str, excludes: t.Container[str] = None) -> t.Iterator[str]:
         fullname=os.path.join(path, itemname)
         if os.path.isdir(fullname) and not itemname in excludes:
             yield os.path.abspath(fullname)
+
+
+def startstrip(string: str, part: str) -> str:
+    """Remove `part` from beginning of `string` is `string` startswith `part`.
+
+    Args:
+        string (str): source string.
+        part (str): removing part.
+
+    Returns:
+        str: removed part.
+    """
+    if string.startswith(part):
+        return string[len(part):]
+    return string

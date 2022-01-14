@@ -82,7 +82,8 @@ class Plugin(Scaffold):
         if not import_name:
             import_name = inspect.stack()[1][0].f_locals.get('__name__')
             if not import_name or not '.' in import_name:
-                raise ValueError('cannot inspect module name.')
+                raise ValueError(
+                    "cannot inspect module name and arg 'import_name' not provided")
 
         self._id, self._basedir = id_, None
         self.status = states.StateMachine(states.TransferTable)
@@ -103,7 +104,7 @@ class Plugin(Scaffold):
         self._register: t.List[t.Callable[[
             Flask, utils.staticdict], None]] = []
         self._unregister: t.List[t.Callable[[
-            Flask, utils.staticdict], None]] =[]
+            Flask, utils.staticdict], None]] = []
         self._clean: t.Dict[str, t.Callable[[
             Flask, utils.staticdict], None]] = {}
         self._endpoints = set()
@@ -244,7 +245,12 @@ class Plugin(Scaffold):
         def _clean_url_rule(app: Flask, config: utils.staticdict) -> None:
             # Remove URL Rule from `app.url_map`
             def _belong_to_plugin(rule):
-                return rule.endpoint.replace(config.blueprint + '.', '') in self._endpoints
+                plugin_endpoint = utils.startstrip(
+                    rule.endpoint, config.blueprint + '.')
+                if plugin_endpoint.startswith(self._domain + '.'):
+                    return True
+                return False
+
             filtered = map(
                 lambda url_rule: url_rule.empty(), filter(
                     lambda url_rule: not _belong_to_plugin(url_rule),
@@ -264,7 +270,8 @@ class Plugin(Scaffold):
         self._register.append(_register_url_rule)
         self._unregister.append(_unregister_url_rule)
         self._record_clean_function('clean_url_rule', _clean_url_rule)
-        self._record_clean_function('clean_view_function', _clean_view_function)
+        self._record_clean_function(
+            'clean_view_function', _clean_view_function)
 
     def endpoint(self, endpoint: str) -> t.Callable:
         """Decorate a view function to register it for the given
@@ -281,11 +288,10 @@ class Plugin(Scaffold):
             raise ValueError("'endpoint' may not contain a dot '.' character.")
 
         def _decorator(function: t.Callable):
-            self._endpoints.add(endpoint)
+            self._endpoints.add(self._domain + '.' + endpoint)
 
             # Deferred functions
             def _register_view_function(app: Flask, config: utils.staticdict) -> None:
-                self._endpoints.add(endpoint)
                 app.endpoint(
                     '.'.join([config.blueprint, self._domain, endpoint]))(function)
 

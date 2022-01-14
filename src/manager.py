@@ -103,7 +103,7 @@ class PluginManager:
         names = request.blueprints
         if len(names) != 2:
             return None
-        domain = names[0].replace(manager._config.blueprint + '.', '')
+        domain = utils.startstrip(names[0], manager._config.blueprint + '.')
 
         # Dynamic switch plugin `jinja_loader`
         for plugin in manager._loaded:
@@ -218,7 +218,7 @@ class PluginManager:
         plugin.status.assert_allow('load')
 
         # Check if duplicated plugin id
-        if plugin in self._loaded:
+        if plugin.id_ in [_.id_ for _ in self._loaded]:
             raise RuntimeError(f'duplicated plugin id: {plugin.id_}')
 
         # Check if plugin scaned by manager
