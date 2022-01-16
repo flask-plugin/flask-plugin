@@ -2,7 +2,3 @@ flask
 pylint
 coverage
 codecov
-sphinx
-sphinx_rtd_theme
-recommonmark
-m2r2
