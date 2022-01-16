@@ -53,9 +53,9 @@ language = 'en'
 exclude_patterns = []
 
 source_suffix = ['.rst']
-# source_parsers = {
-#     '.md': CommonMarkParser,
-# }
+source_parsers = {
+    '.md': CommonMarkParser,
+}
 
 
 # -- Options for HTML output -------------------------------------------------

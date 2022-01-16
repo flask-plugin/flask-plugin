@@ -1,9 +1,11 @@
 .. rst-class:: hide-header
 
-.. mdinclude:: ../../readme.md
+.. mdinclude:: home.md
 
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
-   
+
+   home
+   quick-start
    api
