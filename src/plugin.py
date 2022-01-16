@@ -13,12 +13,51 @@ from . import states
 
 
 class Plugin(Scaffold):
-    """Users can create their own plugin by instantiating this class. 
-    After binding with the Flask application, 
-    the instance will be automatically discovered by the manager.
-    The `Plugin` class inherits from the `Scaffold` class, 
-    and its working principle is roughly similar to `Blueprint`, 
-    but the difference is that the `Plugin` class implements dynamic routing management.
+    """
+    Create plugin by instantiating this class. 
+    
+    After binding with the Flask application, the instance will be 
+    automatically discovered by the manager.
+    
+    The :py:class:`Plugin` class inherits from the ``flask.scaffold.Scaffold`` class, 
+    and its working principle is roughly similar to ``flask.Blueprint``, 
+    but the difference is that the :py:class:`Plugin` class 
+    implements dynamic routing management.
+
+    Args:
+        id_ (str): using for identify and search plugin.
+        domain (str): scope of the plug-in determines the path through which 
+                      the plug-in can be accessed, your plugin will be accessible 
+                      in pattern: ``/{PluginManager.config.blueprint}/{Plugin.domain}/{endpoint}``.
+
+        name (str, optional): plugin name.
+        author (str, optional): author of plugin, email or name.
+        description (str, optional): a brief explanation for your plugin.
+        version (t.Tuple[int, int, int], optional): version tuple. Defaults to (0, 0, 0).
+
+        import_name (str, optional): plugin will inspect your module ``__name__``, 
+                                     but unless you have other reasons, 
+                                     please use ``__name__`` as the parameter 
+                                     value when registering the plug-in, 
+                                     otherwise don't pass it in. Defaults to None.
+
+        static_folder (str, optional): static resource directory. Defaults to None.
+        template_folder: (str, optional): template folder inside plugin directory. Defaults to None.
+        static_url_path (str, optional): static url path. Defaults to None.
+        root_path (str, optional): when you initialize the plugin with 
+                                   a not ``__name__`` parameter ``import_name``, 
+                                   you should pass this parameter as your plugin directory, 
+                                   because flask will unable to locate your plugin. Defaults to None.
+
+    Raises:
+        ValueError: if we could not use ``inspect`` to get valid module ``__name__``
+                    it will raise ``ValueError``.
+
+    :ivar id\\_: plugin id.
+    :ivar domain: plugin domain.
+    :ivar info: plugin info :py:class:`utils.attrdict`.
+    :ivar basedir: plugin dirname.
+    :ivar name: plugin name.
     """
 
     id_ = utils.property_('id', type_=str)
@@ -44,41 +83,8 @@ class Plugin(Scaffold):
         template_folder: str = None,
         root_path: str = None
     ) -> None:
-        """
-        Args:
-            id_ (str): using for identify and search plugin, is recommended to use 
-            `uuid` to generate a fixed and unique id for your plugin.
 
-            domain (str): scope of the plug-in determines the path through 
-            which the plug-in can be accessed, your plugin will be accessible in 
-            `f'/{PluginManager.config.blueprint}/{Plugin.domain}/#view_func`
-
-            Below are plugin info for end-user:
-                name (str, optional): plugin name. Defaults to ''.
-                author (str, optional): author of plugin, email or name. Defaults to ''.
-                description (str, optional): a brief explanation for your plugin. Defaults to ''.
-                version (t.Tuple[int, int, int], optional): version tuple. Defaults to (0, 0, 0).
-
-            These parameters as same as initializing `flask.Flask`:
-                import_name (str, optional): plugin will inspect your module `__name__`, 
-                but unless you have other reasons, please use `__name__` as the parameter 
-                value when registering the plug-in, otherwise don't pass it in. Defaults to None.
-
-                static_folder (str, optional): static resource directory. Defaults to None.
-
-                static_url_path (str, optional): static url path. Defaults to None.
-
-                root_path (str, optional): when you initialize the plugin with 
-                a not `__name__` parameter `import_name`, you should pass this 
-                parameter as your plugin directory, because flask will unable to 
-                locate your plugin. Defaults to None.
-
-        Raises:
-            ValueError: if we could not use `inspect` to get valid module `__name__`
-            it will raise `ValueError`.
-        """
-
-        # Get caller stack info and module using `inspect` module.
+        # Get caller stack info and module using inspect module.
         if not import_name:
             import_name = inspect.stack()[1][0].f_locals.get('__name__')
             if not import_name or not '.' in import_name:
@@ -145,8 +151,12 @@ class Plugin(Scaffold):
 
     @property
     def endpoints(self) -> t.Set[str]:
-        """When `Plugin.status` is `PluginStatus.Unloaded`, means plugin not loaded
-        endpoints refers to empty set.
+        """
+        Return all active endpoints.
+
+        When :py:meth:`.status` is :py:const:`states.PluginStatus.Unloaded`, 
+        means plugin not loaded endpoints refers to empty set.
+        
         Once loaded plugins, return all registered endpoints.
 
         Returns:
@@ -158,9 +168,11 @@ class Plugin(Scaffold):
 
     @staticmethod
     def _make_domain_by_name(name: str) -> str:
-        """Using plugin name when user did not provide domain,
-        although is NOT encouraged. It will replace any non-alphabet characters
-        to '_'.
+        """
+        Convert name to a valid plugin domain name.
+
+        Using plugin name when user did not provide domain, although is NOT encouraged. 
+        It will replace any non-alphabet characters to '_'.
 
         Args:
             name (str): raw plugin name
@@ -174,13 +186,20 @@ class Plugin(Scaffold):
 
     @staticmethod
     def notfound(*args, **kwargs) -> Response:
-        """When we stopped or removed a plugin, followed mapping from urls to endpoints
-        should be removed also. However, after binding url to `werkzeug.routing.Map`, we
-        need to call `werkzeug,routing.Map.remap` for remapping, it will re-compile all
+        """
+        A shortcut function to ``flask.abort``.
+
+        When we stopped or removed a plugin, followed mapping from urls to endpoints
+        should be removed also. 
+        
+        However, after binding url to ``werkzeug.routing.Map``, we need to 
+        call ``werkzeug.routing.Map.remap`` for remapping, it will re-compile all
         Regex instances, which will also caused huge performance cost.
+
         So here is a more elegant and easier way:
+        
         Just remap these endpoints to an 'invalid' function which will directly call
-        `flask.abort(404)`.
+        ``flask.abort``.
 
         Returns:
             Response: 404 Not Found.
@@ -188,8 +207,9 @@ class Plugin(Scaffold):
         abort(404)
 
     def _decorable_setter(self, name: str, prefix: str):
-        """Set getattr(self, `prefix + attr`) to empty list for storaging functions,
-        and set correspoding attributes like decorators.
+        """
+        Set ``getattr(self, prefix + attr)`` to empty list for 
+        storaging functions, and set correspoding attributes like decorators.
         """
         setattr(self, prefix + name, [])
         setattr(self, name, lambda value: getattr(
@@ -199,9 +219,13 @@ class Plugin(Scaffold):
         self, key: str, function:
         t.Callable[[Flask, utils.staticdict], None]
     ) -> None:
-        """Unlike register and unregister functions executed every time route changes,
+        """
+        Register clean function.
+
+        Unlike register and unregister functions executed every time route changes,
         clean functions should just run once. So using a dict for record key and function,
-        if key exists in `self._clean`, just skip adding - like `Blueprint.record_once`.
+        if key exists in :py:attr:`self._clean`, 
+        just skip adding - like ``Blueprint.record_once``.
 
         Args:
             key (str): record function key.
@@ -243,7 +267,7 @@ class Plugin(Scaffold):
                     config.blueprint + '.' + endpoint] = self.notfound
 
         def _clean_url_rule(app: Flask, config: utils.staticdict) -> None:
-            # Remove URL Rule from `app.url_map`
+            # Remove URL Rule from app.url_map
             def _belong_to_plugin(rule):
                 plugin_endpoint = utils.startstrip(
                     rule.endpoint, config.blueprint + '.')
@@ -260,8 +284,8 @@ class Plugin(Scaffold):
             app.url_map = app.url_map_class(filtered)
 
         def _clean_view_function(app: Flask, config: utils.staticdict) -> None:
-            # Endpoints cleaner should be call here, againist user just used
-            # `self.endpoint` registered functions
+            # Endpoints cleaner should be call here, againist user 
+            # just used self.endpoint registered functions
             for endpoint in app.view_functions.copy():
                 if endpoint.startswith(config.blueprint + '.' + self._domain):
                     app.view_functions.pop(endpoint)
@@ -274,9 +298,10 @@ class Plugin(Scaffold):
             'clean_view_function', _clean_view_function)
 
     def endpoint(self, endpoint: str) -> t.Callable:
-        """Decorate a view function to register it for the given
-        endpoint. Used if a rule is added without a `view_func` with
-        `Plugin.add_url_rule`.
+        """
+        Decorate a view function to register it for the given endpoint.
+        
+        Use if a rule is added without a ``view_func`` with :py:meth:`Plugin.add_url_rule`.
 
         Args:
             endpoint (str): endpoint name
@@ -319,7 +344,6 @@ class Plugin(Scaffold):
         f: "ft.ErrorHandlerCallable[ft.GenericException]"
     ) -> None:
 
-        # Same as `Scaffold.register_error_handler`
         try:
             exc_class, code = self._get_exc_class_and_code(code_or_exception)
         except KeyError:
@@ -346,19 +370,24 @@ class Plugin(Scaffold):
 
     def _manage_context_handlers_and_processors(
             self, name: str, target: str, prefix: str = '_handler_') -> None:
-        """Manage register and unregister deferred behaviours for context related functions.
-        In flask we could use: `before_request`, `after_request` and `teardown_request` for 
+        """
+        Manage register and unregister deferred behaviours for context related functions.
+       
+        In flask we could use: ``before_request``, ``after_request`` and ``teardown_request`` for 
         adding action inner context.
-        These context handler functions storage at `app.before_request_funcs`, 
-        `app.after_request_funcs` and `app.teardown_request_funcs`.
-        Here add deferred function to check if handlers above set in `Plugin` instance. if so,
+        
+        These context handler functions storage at ``app.before_request_funcs``, 
+        ``app.after_request_funcs`` and ``app.teardown_request_funcs``.
+       
+        Here add deferred function to check if handlers above set in ``Plugin`` instance. if so,
         add/remove it.
-        Processor and preprocessor can also been set this way, they are: `context_processor`,
-        `url_value_preprocessor` and `url_defaults`.
+        
+        Processor and preprocessor can also been set this way, they are: ``context_processor``,
+        ``url_value_preprocessor`` and ``url_defaults``.
 
         Args:
             name (str): context handler name, like `'before_request'`
-            target (str): attribute name going to be used in `Flask`, e.g. `before_request_funcs`
+            target (str): attribute name going to be used in Flask, e.g. ``before_request_funcs``
             prefix (str, optional): prefix adding before variable of storing context handler.
                 Defaults to '_handler_'.
         """
@@ -380,6 +409,20 @@ class Plugin(Scaffold):
             'clean_context_handler', _clean_context_handler)
 
     def export_status_to_dict(self) -> t.Dict:
+        """
+        Export plugin info to dict.
+
+        Included keys:
+        
+          - id: plugin id.
+          - name: plugin name.
+          - status: plugin status, refered to :py:class:`states.PluginStatus`.
+          - domain: plugin working domain.
+          - info: other plugin info.
+
+        Returns:
+            t.Dict: plugin info and status.
+        """
         return {
             'id': self._id,
             'name': self.name,
@@ -393,19 +436,45 @@ class Plugin(Scaffold):
 
     # Controllers
     def load(self, app: Flask, config: utils.staticdict) -> None:
+        """
+        Load plugin.
+
+        All routes inside plugin module are prepard in deferred registering functions.
+        
+        Set current plugin status to :py:const:`states.PluginStatus.Loaded`.
+        """
         self.status.value = states.PluginStatus.Loaded
 
     def register(self, app: Flask, config: utils.staticdict) -> None:
+        """
+        Register plugin into manager.
+
+        Execute all deferred registering functions, 
+        and transfer plugin status to :py:const:`states.PluginStatus.Running`.
+        """
         for defferd in self._register:
             defferd(app, config)
         self.status.value = states.PluginStatus.Running
 
     def unregister(self, app: Flask, config: utils.staticdict) -> None:
+        """
+        Unregister plugin.
+
+        Redirect all plugin endpoints in ``app.view_function`` to :py:meth:`Plugin.notfound`,
+        which is a shortcut to `flask.abort(404)`.
+        """
         for defferd in self._unregister:
             defferd(app, config)
         self.status.value = states.PluginStatus.Stopped
 
     def clean(self, app: Flask, config: utils.staticdict) -> None:
+        """
+        Clean plugin resource and unload module.
+
+        Deferred clean fucntions will be executed to remove all url rule
+        in ``app.url_rules`` which used by plugin, also pop all preprocessors
+        and error handler registered in ``app``.
+        """
         for _key, function in self._clean.items():
             function(app, config)
         self.status.value = states.PluginStatus.Unloaded

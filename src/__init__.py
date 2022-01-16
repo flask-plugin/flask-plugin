@@ -1,17 +1,17 @@
-"""Export Modules"""
 
 from .plugin import Plugin
 from .manager import PluginManager
-from . import signals, utils, states
+from . import signals, utils, states, config
 
 __version__ = '.'.join(str(num) for num in (0, 0, 1))
 
 
 __all__ = [
-    __version__,
-    Plugin,
-    PluginManager,
-    signals,
-    states,
-    utils
+    '__version__',
+    'Plugin',
+    'PluginManager',
+    'config',
+    'signals',
+    'states',
+    'utils'
 ]

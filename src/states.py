@@ -8,26 +8,26 @@ class PluginStatus(enum.Enum):
     """
     Plugin Status Enumerating.
 
-    Plugin status could be 4 `enum.Enum` values:
+    Plugin status could be 4 ``enum.Enum`` values:
 
     0. Loaded: 
-    When we called `__import__` for importing plugin moudule
-    and all view function has been added to `Plugin.endpoints`.
-    But in `app.url_map` there's no record added.
+    When we called ``__import__`` for importing plugin moudule
+    and all view function has been added to :py:meth:`.Plugin.endpoints`.
+    But in ``app.url_map`` there's no record added.
 
     1. Running: 
-    After called `Plugin.register` all mapping from endpoint to function
-    will be added to `app.url_map` so plugin will run functionally.
+    After called :py:meth:`.Plugin.register` all mapping from endpoint to function
+    will be added to ``app.url_map`` so plugin will run functionally.
 
     2. Stopped: 
-    After we called `Plugin.unregister`, all record inside `app.url_map`
-    will still exist, but mapping from endpoints to view functions in `app.view_functions` 
-    will be point to `Plugin.notfound` which will directly return HTTP 404.
+    After we called :py:meth:`.Plugin.unregister`, all record inside ``app.url_map``
+    will still exist, but mapping from endpoints to view functions in ``app.view_functions`` 
+    will be point to :py:meth:`.Plugin.notfound` which will directly return HTTP 404.
 
     3. Unloaded: 
-    After calling `Plugin.clean`, records in `app.url_map` will be remapped,
-    and `app.view_functions` will also be removed, 
-    all data inner `Plugin` instance will be cleaned also.
+    After calling :py:meth:`.Plugin.clean`, records in ``app.url_map`` will be remapped,
+    and ``app.view_functions`` will also be removed, 
+    all data inner :py:class:`.Plugin` instance will be cleaned also.
 
     Enumerations:
     """
@@ -49,7 +49,7 @@ TransferTable: t.Dict[t.Tuple[PluginStatus, str], PluginStatus] = {
 
 
 class StateMachine:
-    """We dont want check `Plugin.status` everytime to ensure if an operation
+    """We dont want check :py:meth:`Plugin.status` everytime to ensure if an operation
     is suitable for execution, so it's better to write an simple finite-state-machine
     to manage:
 
@@ -82,7 +82,7 @@ class StateMachine:
             state (PluginStatus): state going to transfer in.
 
         Raises:
-            RuntimeError: raise if transfer to `state` not allowed by table.
+            RuntimeError: raise if transfer to ``state`` not allowed by table.
         """
         for rule, dest in self._transfers.items():
             if rule[0] == self._current and dest == state:

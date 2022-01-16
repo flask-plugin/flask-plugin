@@ -1,4 +1,1 @@
 flask
-pylint
-coverage
-codecov

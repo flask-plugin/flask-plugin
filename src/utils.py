@@ -1,3 +1,6 @@
+"""
+Contains some helper functions and classes.
+"""
 
 import os
 import typing as t
@@ -5,21 +8,26 @@ import typing as t
 
 class attrdict(dict):
     """
-    Sub-class like python dict with support for writing and reading by attr.
+    Sub-class like python dict with support for I/O like attr.
 
-    Example for using:
-        profile = attrdict({
-            'languages': ['python', 'cpp', 'javascript', 'c'],
-            'nickname': 'doge gui',
-            'age': 23
-        })
-        profile.languages.append('Russian')  # Add language to profile
-        profile.age == 23  # True
+    >>> profile = attrdict({
+        'languages': ['python', 'cpp', 'javascript', 'c'],
+        'nickname': 'doge gui',
+        'age': 23
+    })
+    >>> profile.languages.append('Russian')  # Add language to profile
+    >>> profile.languages
+    ['python', 'cpp', 'javascript', 'c', 'Russian']
+    >>> profile.age == 23
+    True
 
-    Attribute-like key should not be methods with dict, and obey python syntax.
-    Example:
-        profile.1 = 0  # SyntaxError
-        profile.popitem = None  # Rewrite
+    Attribute-like key should not be methods with dict, and obey python syntax:
+
+    >>> profile.1 = 0
+    Traceback (most recent call last):
+        ...
+    SyntaxError: invalid syntax
+    >>> profile.popitem = None  # Rewrite
     """
 
     def __setattr__(self, name: str, value: t.Any) -> None:
@@ -36,24 +44,27 @@ class attrdict(dict):
 
 class staticdict(attrdict):
     """
-    staticdict inherit all behaviors from attrdict but forbidden all writing operations on dict.
+    staticdict inherit all behaviors from attrdict but banned all writing operations on it.
 
-    Example for using:
-        final = staticdict({
-            'loaded': False,
-            'config': './carental/config.py'
-        })
-        not final.loaded is True  # True
-        final.brand = 'new'  # RuntimeError
+    >>> final = staticdict({
+        'loaded': False,
+        'config': './carental/config.py'
+    })
+    >>> not final.loaded is True
+    True
+    >>> final.brand = 'new'
+    Traceback (most recent call last):
+        ...
+    RuntimeError: cannot set value on staticdict
     """
 
     def __setattr__(self, _key: str, _value: object) -> t.NoReturn:
         if _key in dir(dict):
             super().__setattr__(_key, _value)
-        raise RuntimeError('Cannot set value on staticdict')
+        raise RuntimeError('cannot set value on staticdict')
 
     def __delattr__(self, _key: str):
-        raise RuntimeError('Cannot delete value on staticdict')
+        raise RuntimeError('cannot delete value on staticdict')
 
 
 _T = t.TypeVar('_T')
@@ -61,36 +72,28 @@ _T = t.TypeVar('_T')
 
 class property_(t.Generic[_T]):
     """
+    A one line ``property`` decorator to support reading class attributes with prefix.
+
     Here is a sub-class inherit from dict which support it,
-    by using __getattr__, __setattr__, and __delattr__.
-    ---
+    by using ``__getattr__``, ``__setattr__``, and ``__delattr__``.
     When we want to declare a property inside class, we always doing this:
 
-    ```
-    class Bar:
-
+    >>> class Bar:
         def __init__(self, size: int, count: int) -> None:
             self._size = size
             self._count = count
-
         @property
         def size(self) -> int:
             return self._size
-
         @property
         def count(self) -> int:
             return self._count
-    ```
+    
+    Obviously its sth like redundancy, by using this ``property_`` function we could:
 
-    Obviously its sth like redundancy.
-    By using this property_ function we could:
-
-    ```
-    class AnotherBar(Bar):
-        ...  # Same as super(self, AnotherBar).__init__(size, count)
-        size = property_('size', type_=int)
-        count = property_('count', type_=int, writeable=True)
-    ```
+    >>> class AnotherBar(Bar):
+            size = property_('size', type_=int)
+            count = property_('count', type_=int, writeable=True)
 
     Also you could define which selector using before attribute.
     The default one is '_'.
@@ -128,8 +131,8 @@ class property_(t.Generic[_T]):
 
 
 def listdir(path: str, excludes: t.Container[str] = None) -> t.Iterator[str]:
-    """List all dir inside specific path.
-    If invalid path occured, it will raise `FileNotFoundError`
+    """
+    List all dir inside specific path.
 
     Args:
         path (str): path to be explore.
@@ -137,6 +140,9 @@ def listdir(path: str, excludes: t.Container[str] = None) -> t.Iterator[str]:
 
     Yields:
         Iterator[str]: dirname.
+
+    Raises:
+        FileNotFoundError: when given invalid ``path``.
     """
     if excludes is None:
         excludes=set()
@@ -147,7 +153,8 @@ def listdir(path: str, excludes: t.Container[str] = None) -> t.Iterator[str]:
 
 
 def startstrip(string: str, part: str) -> str:
-    """Remove `part` from beginning of `string` is `string` startswith `part`.
+    """
+    Remove ``part`` from beginning of ``string`` if ``string`` startswith ``part``.
 
     Args:
         string (str): source string.
