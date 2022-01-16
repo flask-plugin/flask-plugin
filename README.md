@@ -84,6 +84,7 @@ which `{{ VERSION }}` is release version.
    @plugin.route('/', methods=['GET'])
    def index():
        return render_template('index.html', name='Anonymous')
+   ```
 
 4. Accessing `/plugins/hello/` and see the greeting:
 
