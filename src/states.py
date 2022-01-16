@@ -5,23 +5,31 @@ import typing as t
 
 @enum.unique
 class PluginStatus(enum.Enum):
-    """Plugin Status Enumerating
+    """
+    Plugin Status Enumerating.
+
     Plugin status could be 4 `enum.Enum` values:
-        0. Loaded
-            When we called `__import__` for importing plugin moudule
-            and all view function has been added to `Plugin.endpoints`.
-            But in `app.url_map` there's no record added.
-        1. Running
-            After called `Plugin.register` all mapping from endpoint to function
-            will be added to `app.url_map` so plugin will run functionally.
-        2. Stopped
-            After we called `Plugin.unregister`, all record inside `app.url_map`
-            will still exist, but mapping from endpoints to view functions in `app.view_functions` 
-            will be point to `Plugin.notfound` which will directly return HTTP 404.
-        3. Unloaded
-            After calling `Plugin.clean`, records in `app.url_map` will be remapped,
-            and `app.view_functions` will also be removed.
-            All data inner `Plugin` instance will be cleaned also.
+
+    0. Loaded: 
+    When we called `__import__` for importing plugin moudule
+    and all view function has been added to `Plugin.endpoints`.
+    But in `app.url_map` there's no record added.
+
+    1. Running: 
+    After called `Plugin.register` all mapping from endpoint to function
+    will be added to `app.url_map` so plugin will run functionally.
+
+    2. Stopped: 
+    After we called `Plugin.unregister`, all record inside `app.url_map`
+    will still exist, but mapping from endpoints to view functions in `app.view_functions` 
+    will be point to `Plugin.notfound` which will directly return HTTP 404.
+
+    3. Unloaded: 
+    After calling `Plugin.clean`, records in `app.url_map` will be remapped,
+    and `app.view_functions` will also be removed, 
+    all data inner `Plugin` instance will be cleaned also.
+
+    Enumerations:
     """
     Loaded = 0
     Running = 1
@@ -43,15 +51,12 @@ TransferTable: t.Dict[t.Tuple[PluginStatus, str], PluginStatus] = {
 class StateMachine:
     """We dont want check `Plugin.status` everytime to ensure if an operation
     is suitable for execution, so it's better to write an simple finite-state-machine
-    to manage this:
-        ```
-        machine = StateMachine(transfer_table, current_state)
-        if machine.allow('start'):
-            ...
-        @machine.limit('start')
-        def test():
-            ...
-        ```
+    to manage:
+
+    >>> machine = StateMachine(transfer_table, current_state)
+    >>> if machine.allow('start'):
+        ... # Operations
+    >>> machine.assert_allow('start')
     """
 
     def __init__(self, table: t.Dict[t.Tuple[PluginStatus, str], PluginStatus],
@@ -66,10 +71,19 @@ class StateMachine:
 
     @property
     def value(self) -> PluginStatus:
+        """Return current state."""
         return self._current
 
     @value.setter
     def value(self, state: PluginStatus) -> None:
+        """Set current state.
+
+        Args:
+            state (PluginStatus): state going to transfer in.
+
+        Raises:
+            RuntimeError: raise if transfer to `state` not allowed by table.
+        """
         for rule, dest in self._transfers.items():
             if rule[0] == self._current and dest == state:
                 self._current = state
@@ -78,20 +92,27 @@ class StateMachine:
             f"cannot transfer state from '{self._current.name}' to '{state}'")
 
     def allow(self, operation: str) -> bool:
+        """Check if operation allow in current state.
+
+        Args:
+            operation (str): operation going to be execute.
+
+        Returns:
+            bool: if allowed this operation.
+        """
         if (self._current, operation) in self._transfers:
             return True
         return False
 
     def assert_allow(self, operation):
+        """Assert current state acceptable with this operation.
+
+        Args:
+            operation ([type]): operation going to be execute.
+
+        Raises:
+            RuntimeError: raise if transfer not allowed by table.
+        """
         if not self.allow(operation):
             raise RuntimeError(
                 f"operation '{operation}' not allowed in state '{self._current.name}'")
-
-    def limit(self, function: t.Callable, operation: str) -> t.Callable:
-        if self.allow(operation):
-            return function
-
-        def _empty(*_, **kwargs):
-            raise RuntimeError(
-                f"operation '{operation}' not allowed in state '{self._current.name}'")
-        return _empty

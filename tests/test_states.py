@@ -78,10 +78,3 @@ class TestStates(unittest.TestCase):
     def test_assert_allow(self) -> None:
         self.assertRaises(RuntimeError, lambda: self.state.assert_allow(
             '_operation_which_never_been_allowed'))
-
-    def test_limit(self) -> None:
-        self.assertRaises(
-            RuntimeError,
-            self.state.limit(
-                lambda: True, '_operation_which_never_been_allowed')
-        )
