@@ -16,11 +16,10 @@ An extension to add support of Plugin in Flask.
 
 ## Install
 
-Download from git repo and install:
+Install Flask-Plugin using pip:
 
 ```bash
-git clone https://github.com/guiqiqi/flask-plugin
-python3 flask-plugin/setup.py install
+pip install flask-plugin
 ```
 
 Or download Wheel package from [releases](https://github.com/guiqiqi/flask-plugin/releases/) and install using pip:
@@ -94,7 +93,7 @@ which `{{ VERSION }}` is release version.
 
    Stop the plugin with accessing `/api/stop/347336b4fcdd447985aec57f2bc5793c`, check url above again, and get a `HTTP 404` error.
 
-Complete documentation is now developing.
+Documentation for Flask-Plugin avaliable on: [Flask-Plugin Documentation](https://flask-plugin.init.blog)
 
 ## Thanks
 

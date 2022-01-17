@@ -8,4 +8,7 @@
 
    home
    quick-start
+   plugin
+   manager
+   other
    api

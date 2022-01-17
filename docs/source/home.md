@@ -5,6 +5,8 @@
 
 An extension to add support of Plugin in Flask.
 
+GitHub repo: https://github.com/guiqiqi/flask-plugin
+
 **Features:**
 
 1. Define plugin routes in the same way as Application, Blueprint, while providing all the Flask features (Template rendering, url_for, message flashing, signals, etc.)
@@ -12,13 +14,12 @@ An extension to add support of Plugin in Flask.
 3. Configured with Flask, no need to configure separately.
 4. Auto-discovery and management for plugins.
 
-## Install
+**Install:**
 
-Download from git repo and install:
+Install Flask-Plugin using pip:
 
 ```bash
-git clone https://github.com/guiqiqi/flask-plugin
-python3 flask-plugin/setup.py install
+pip install flask-plugin
 ```
 
 Or download Wheel package from [releases](https://github.com/guiqiqi/flask-plugin/releases/) and install using pip:
@@ -28,7 +29,3 @@ pip install flask_plugin-{{ VERSION }}-py3-none-any.whl
 ```
 
 which `{{ VERSION }}` is release version.
-
-## Thanks
-
-This project is based on many open source projects of the [Pallets group](https://palletsprojects.com/), and I would like to express my thanks here.
