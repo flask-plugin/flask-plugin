@@ -8,6 +8,18 @@
             "label": "uninstall",
             "command": ["pip uninstall flask_plugin -y"],
             "detail": "Uninstall Flask-Plugin previous installation"
+        },
+        {
+            "type": "shell",
+            "label": "document",
+            "command": ["cd docs && ./build.sh"],
+            "detail": "Build document for Flask-Plugin"
+        },
+        {
+            "type": "shell",
+            "label": "coverage",
+            "command": ["coverage run --source src -m tests.run && coverage html -d reports"],
+            "detail": "Check code coverage for Flask-Plugin"
         }
     ]
 }

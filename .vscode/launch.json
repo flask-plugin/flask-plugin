@@ -10,7 +10,11 @@
             "request": "launch",
             "program": "setup.py",
             "console": "integratedTerminal",
-            "args": ["install", "--install-lib", "/Users/doge/Library/Python/3.8/lib/python/site-packages"],
+            "args": [
+                "install", 
+                "--install-lib", 
+                "/Users/doge/Library/Python/3.8/lib/python/site-packages"
+            ],
             "preLaunchTask": "uninstall"
         },
         {
@@ -26,13 +30,18 @@
             ]
         },
         {
-            "name": "Test Flask-Plugin",
-            "type": "python",
+            "name": "Test and Coverage Flask-Plugin",
             "request": "launch",
-            "module": "tests.run",
-            "args": [
-                "--level=2"
-            ]
+            "type": "chrome",
+            "file": "reports/index.html",
+            "preLaunchTask": "coverage"
+        },
+        {
+            "name": "Build document for Flask-Plugin",
+            "request": "launch",
+            "type": "chrome",
+            "file": "docs/build/html/index.html",
+            "preLaunchTask": "document"
         },
         {
             "name": "Develop Flask-Plugin",

@@ -49,7 +49,7 @@ TransferTable: t.Dict[t.Tuple[PluginStatus, str], PluginStatus] = {
 
 
 class StateMachine:
-    """We dont want check :py:meth:`Plugin.status` everytime to ensure if an operation
+    """We dont want check :py:attr:`Plugin.status` everytime to ensure if an operation
     is suitable for execution, so it's better to write an simple finite-state-machine
     to manage:
 

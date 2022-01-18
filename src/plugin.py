@@ -57,6 +57,7 @@ class Plugin(Scaffold):
     :ivar domain: plugin domain.
     :ivar info: plugin info :py:class:`utils.attrdict`.
     :ivar basedir: plugin dirname.
+    :ivar status: plugin status machine.
     :ivar name: plugin name.
     """
 
