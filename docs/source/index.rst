@@ -6,7 +6,6 @@
    :maxdepth: 2
    :caption: Contents:
 
-   home
    quick-start
    plugin
    manager

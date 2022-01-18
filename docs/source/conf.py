@@ -21,7 +21,8 @@ sys.path.insert(0, os.path.abspath('../..'))
 project = 'Flask-Plugin'
 copyright = '2022, Doge Gui'
 author = 'Doge Gui'
-
+version = __import__('src').__version__
+html_title = 'Flask-Plugin Documentation'
 
 # -- General configuration ---------------------------------------------------
 

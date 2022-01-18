@@ -1,11 +1,13 @@
-# Introduce to Flask-Plugin
+:orphan:
+
+# Flask-Plugin
 
 ![Python](https://img.shields.io/badge/Python-3.7%2B-blue) ![License](https://img.shields.io/github/license/guiqiqi/flask-plugin) ![test](https://github.com/guiqiqi/flask-plugin/actions/workflows/unittest.yml/badge.svg) ![pylint](https://github.com/guiqiqi/flask-plugin/actions/workflows/pylint.yml/badge.svg) [![codecov](https://codecov.io/gh/guiqiqi/flask-plugin/branch/main/graph/badge.svg?token=DE329H13JM)](https://codecov.io/gh/guiqiqi/flask-plugin)
 
 
 An extension to add support of Plugin in Flask.
 
-GitHub repo: https://github.com/guiqiqi/flask-plugin
+GitHub Repo: https://github.com/guiqiqi/flask-plugin
 
 **Features:**
 
