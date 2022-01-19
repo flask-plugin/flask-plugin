@@ -133,7 +133,7 @@ If you are interested in how plugins work, this section may help you.
 
 1. Load
 
-   When the plugin is `imported` by the manager, all the view function definitions are loaded into a list of deferred functions that are used to register the necessary information on the Flask Application instance, just as they are in the Python Module, but note that they are not yet executed.
+   When the plugin is imported by the manager, all the view function definitions are loaded into a list of deferred functions that are used to register the necessary information on the Flask Application instance, just as they are in the Python Module, but note that they are not yet executed.
 
 2. Start
 
