@@ -93,7 +93,7 @@ which `{{ VERSION }}` is release version.
 
    Stop the plugin with accessing `/api/stop/347336b4fcdd447985aec57f2bc5793c`, check url above again, and get a `HTTP 404` error.
 
-Documentation for Flask-Plugin avaliable on: [Flask-Plugin Documentation](https://flask-plugin.init.blog)
+Documentation for Flask-Plugin avaliable on: [Flask-Plugin Documentation](https://docs.flask-plugin.org)
 
 ## Thanks
 

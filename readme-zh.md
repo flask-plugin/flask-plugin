@@ -93,7 +93,7 @@ pip install flask_plugin-{{ VERSION }}-py3-none-any.whl
 
    通过访问  `/api/stop/347336b4fcdd447985aec57f2bc5793c` 停止插件，再次检查上面的链接，会得到一个 `HTTP 404` 错误。
 
-更多信息和文档参见：[Flask-Plugin Documentation](https://flask-plugin.init.blog)
+更多信息和文档参见：[Flask-Plugin Documentation](https://docs.flask-plugin.org)
 
 ## 致谢
 
