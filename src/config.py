@@ -14,7 +14,7 @@ ConfigFile = 'plugin.json'
 """Plugin description filename."""
 
 
-@cache
+@cache(None)
 def __load_config_schema():
     with open(path.join(path.dirname(__file__), 'plugin.schema.json')) as handler:
         return json.load(handler)
