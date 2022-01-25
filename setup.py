@@ -8,6 +8,11 @@ chdir(path.dirname(path.abspath(__file__)))
 with open('readme.md', 'r') as handler:
     readme = handler.read()
 
+requirements = []
+with open('requirements.txt', 'r') as handler:
+    for line in handler:
+        requirements.append(line.strip())
+
 setup(
     name='Flask-Plugin',
     version=__version__,
@@ -23,8 +28,14 @@ setup(
     python_requires='>=3.7',
     packages=['flask_plugin'],
     package_dir={'flask_plugin': 'src'},
-    install_requires=['flask'],
-    data_files=[('', ['LICENSE', 'readme.md'])],
+    install_requires=requirements,
+    data_files=[
+        ('', ['LICENSE', 'readme.md'])
+    ],
+    package_data={
+        "flask_plugin": ["src/plugin.schema.json"]
+    },
+    include_package_data=True,
     classifiers=[
         'Environment :: Web Environment',
         'Development Status :: 3 - Alpha',

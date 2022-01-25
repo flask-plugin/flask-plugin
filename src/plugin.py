@@ -1,15 +1,19 @@
 
+import json
 import inspect
 import typing as t
+from os import path
 
 import flask.typing as ft
 from flask import abort
 from flask.app import Flask
 from flask.scaffold import Scaffold
 from flask.wrappers import Response
+from jsonschema import ValidationError
 
 from . import utils
 from . import states
+from .config import ConfigFile, validate
 
 
 class Plugin(Scaffold):
@@ -26,15 +30,11 @@ class Plugin(Scaffold):
 
     Args:
         id_ (str): using for identify and search plugin.
+        name (str, optional): plugin name.
         domain (str): scope of the plug-in determines the path through which 
                       the plug-in can be accessed, your plugin will be accessible 
                       in pattern: ``/{PluginManager.config.blueprint}/{Plugin.domain}/{endpoint}``.
-
-        name (str, optional): plugin name.
-        author (str, optional): author of plugin, email or name.
-        description (str, optional): a brief explanation for your plugin.
-        version (t.Tuple[int, int, int], optional): version tuple. Defaults to (0, 0, 0).
-
+        
         import_name (str, optional): plugin will inspect your module ``__name__``, 
                                      but unless you have other reasons, 
                                      please use ``__name__`` as the parameter 
@@ -52,6 +52,8 @@ class Plugin(Scaffold):
     Raises:
         ValueError: if we could not use ``inspect`` to get valid module ``__name__``
                     it will raise ``ValueError``.
+        FileNotFoundError: if plugin config not found.
+        ValidationError: if plugin config not valid with schema.
 
     :ivar id\\_: plugin id.
     :ivar domain: plugin domain.
@@ -69,14 +71,6 @@ class Plugin(Scaffold):
     def __init__(
         self,
 
-        # Plugin parameters
-        id_: str,
-        name: str,
-        domain: str,
-        author: str = '',
-        description: str = '',
-        version: t.Tuple[int, int, int] = (0, 0, 0),
-
         # Same parameters for Scaffold
         import_name: str = None,
         static_folder: str = None,
@@ -92,20 +86,29 @@ class Plugin(Scaffold):
                 raise ValueError(
                     "cannot inspect module name and arg 'import_name' not provided")
 
-        self._id, self._basedir = id_, None
+        # Initialize Scaffold
+        super().__init__(import_name, static_folder=static_folder,
+                         static_url_path=static_url_path, root_path=root_path,
+                         template_folder=template_folder)
+
+        # Patch information from `.config.ConfigFile`
+        try:
+            with open(path.join(self.root_path, ConfigFile)) as handler:
+                config = json.load(handler, object_pairs_hook=lambda o: utils.attrdict(o))
+            validate(config)
+        except (FileNotFoundError, ValidationError):
+            raise
+        self.name = config.plugin.name
+        self._info = config.plugin
+
+        # Other info
+        self._domain = config.domain
+        self._id, self._basedir = config.id, None
         self.status = states.StateMachine(states.TransferTable)
-        self._domain = domain if domain else self._make_domain_by_name(name)
         if '.' in self._domain:
             raise ValueError("plugin 'domain' cannot contain '.'")
-        if not domain:
-            raise ValueError("empty puugin 'domain' not allowed")
-
-        # Editable information dict for end-user
-        self._info = utils.attrdict({
-            'author': author,
-            'version': version,
-            'description': description
-        })
+        if not self._domain:
+            raise ValueError("empty plugin 'domain' not allowed")
 
         # Deferred function, executing when registering into Manager
         self._register: t.List[t.Callable[[
@@ -115,12 +118,6 @@ class Plugin(Scaffold):
         self._clean: t.Dict[str, t.Callable[[
             Flask, utils.staticdict], None]] = {}
         self._endpoints = set()
-
-        # Initialize Scaffold
-        super().__init__(import_name, static_folder=static_folder,
-                         static_url_path=static_url_path, root_path=root_path,
-                         template_folder=template_folder)
-        self.name = name
 
         # Add static file sending support
         if static_folder:
@@ -168,7 +165,7 @@ class Plugin(Scaffold):
         return self._endpoints
 
     @staticmethod
-    def _make_domain_by_name(name: str) -> str:
+    def _make_domain_by_name(_name: str) -> str:
         """
         Convert name to a valid plugin domain name.
 
@@ -181,9 +178,7 @@ class Plugin(Scaffold):
         Returns:
             str: valid endpoint name
         """
-        return ''.join(
-            map(lambda c: c if c.isalpha() else '_', name)
-        )
+        raise DeprecationWarning('This method has been deprecated.')
 
     @staticmethod
     def notfound(*args, **kwargs) -> Response:
