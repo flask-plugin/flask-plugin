@@ -2,7 +2,7 @@
 Contains all custom signals based on ``flask.signals.Namespace``.
 
 All these signals send with caller as instance of :py:class:`.PluginManager`,
-and the only argument is plugin instance operated.
+and the only argument named `plugin` is plugin instance operated.
 
 If you want to receive these signals, please install the blinker library, 
 see: https://flask.palletsprojects.com/en/2.0.x/signals/

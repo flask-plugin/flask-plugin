@@ -221,7 +221,7 @@ class PluginManager:
                 # Check if plugin module contains ``plugin`` variable
                 if not hasattr(module, 'plugin'):
                     raise ImportError('module does not have plugin instance.')
-            except (ImportError, FileNotFoundError) as error:
+            except Exception as error:
                 if self._app.propagate_exceptions:
                     raise
                 self._app.logger.warn(
@@ -280,7 +280,7 @@ class PluginManager:
         plugin.load(self._app, self._config)
         self._loaded[plugin] = plugin.basedir
         self._app.logger.info(f'loaded plugin: {plugin.name}')
-        signals.loaded.send(self, plugin)
+        signals.loaded.send(self, plugin=plugin)
 
     def start(self, plugin: Plugin) -> None:
         """
@@ -292,7 +292,7 @@ class PluginManager:
         plugin.status.assert_allow('start')
         plugin.register(self._app, self._config)
         self._app.logger.info(f'started plugin: {plugin.name}')
-        signals.started.send(self, plugin)
+        signals.started.send(self, plugin=plugin)
 
     def stop(self, plugin: Plugin) -> None:
         """
@@ -304,7 +304,7 @@ class PluginManager:
         plugin.status.assert_allow('stop')
         plugin.unregister(self._app, self._config)
         self._app.logger.info(f'stopped plugin: {plugin.name}')
-        signals.stopped.send(self, plugin)
+        signals.stopped.send(self, plugin=plugin)
 
     def unload(self, plugin: Plugin) -> None:
         """
@@ -317,4 +317,4 @@ class PluginManager:
         plugin.clean(self._app, self._config)
         self._loaded.pop(plugin)
         self._app.logger.info(f'unloaded plugin: {plugin.name}')
-        signals.unloaded.send(self, plugin)
+        signals.unloaded.send(self, plugin=plugin)
