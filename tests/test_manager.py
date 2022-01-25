@@ -10,6 +10,7 @@ class TestManagerApp(unittest.TestCase):
 
     def setUp(self) -> None:
         self.app = init_app('BaseDevelopmentConfig')
+        self.client = self.app.test_client()
         self.manager: PluginManager = self.app.plugin_manager  # type: ignore
 
     def test_plugins_not_empty(self) -> None:
@@ -47,22 +48,6 @@ class TestManagerApp(unittest.TestCase):
         self.test_load_plugins()
         self.assertEqual(self.manager.find(), None)
         self.assertEqual(self.manager.find(id_='non-exists'), None)
-
-    def test_load_not_scanned_plugin(self) -> None:
-        plugin = Plugin(
-            id_='id', name='name', 
-            domain='domain', import_name='__main__'
-        )
-        self.assertRaises(RuntimeError, lambda: self.manager.load(plugin))
-
-    def test_load_duplicated_id_plugin(self) -> None:
-        self.test_load_plugins()
-        plugin = Plugin(
-            id_='hello', name='Greeting', 
-            domain='hello', import_name='__main__'
-        )
-        plugin.basedir = '.'
-        self.assertRaises(RuntimeError, lambda: self.manager.load(plugin)) 
 
     def test_unload_plugins_after_load(self) -> None:
         self.test_load_plugins()
@@ -121,3 +106,16 @@ class TestNonExistDirectoryManagerApp(unittest.TestCase):
     def test_non_exist_direcotry(self) -> None:
         self.assertRaises(FileNotFoundError,
                           lambda: list(self.manager.plugins))
+
+
+class TestDuplicatedPluginIDApp(unittest.TestCase):
+
+    def setUp(self) -> None:
+        self.app = init_app('DuplicatedPluginId')
+        self.manager: PluginManager = self.app.plugin_manager  # type: ignore
+    
+    def test_load_duplicated_id_plugin(self) -> None:
+        def _load_all_plugins():
+            for plugin in self.manager.plugins:
+                self.manager.load(plugin)
+        self.assertRaises(RuntimeError, _load_all_plugins) 

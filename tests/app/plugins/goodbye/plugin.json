@@ -1,0 +1,10 @@
+{
+    "id": "goodbye",
+    "domain": "goodbye",
+    "plugin": {
+        "name": "goodbye",
+        "author": "test",
+        "summary": "test."
+    },
+    "releases": []
+}

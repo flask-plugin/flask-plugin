@@ -1,0 +1,10 @@
+{
+    "id": "same-domain-as-blueprint",
+    "domain": "plugins",
+    "plugin": {
+        "name": "same-domain-as-blueprint",
+        "author": "test",
+        "summary": "test."
+    },
+    "releases": []
+}

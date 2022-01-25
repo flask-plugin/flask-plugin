@@ -3,7 +3,6 @@ import unittest
 
 from src import PluginManager, utils
 from src import states
-from src import plugin
 from src.plugin import Plugin
 
 from .app import init_app
@@ -12,7 +11,7 @@ from .app import init_app
 class TestPluginApp(unittest.TestCase):
 
     RequiredPluginInfoKey = ('name', 'id', 'name', 'status', 'info')
-    
+
     def setUp(self) -> None:
         self.app = init_app('BaseDevelopmentConfig')
         self.client = self.app.test_client()
@@ -32,14 +31,15 @@ class TestPluginApp(unittest.TestCase):
         for plugin in self.manager.plugins:
             self.manager.unload(plugin)
 
-    def test_invalid_plugin_domain(self) -> None:
-        self.assertRaises(ValueError, lambda: plugin.Plugin('test', 'test', 'test.test', import_name='__main__'))
-        self.assertRaises(ValueError, lambda: plugin.Plugin('test', 'test', '', import_name='__main__'))
-
     def test_invalid_plugin_endpoint(self) -> None:
         for plugin in self.manager.plugins:
-            self.assertRaises(ValueError, lambda: plugin.add_url_rule('/', endpoint='a.b.c'))
+            self.assertRaises(
+                ValueError, lambda: plugin.add_url_rule('/', endpoint='a.b.c'))
             self.assertRaises(ValueError, lambda: plugin.endpoint('a.b.c'))
+
+    def test_repr_plugin(self) -> None:
+        for plugin in self.manager.plugins:
+            self.assertEqual(repr(plugin), f'<Plugin registered at {plugin.domain} - {plugin.status.value.name}>')
 
     def test_index_api(self) -> None:
         data = self.client.get('/api').json
@@ -48,7 +48,8 @@ class TestPluginApp(unittest.TestCase):
         for plugin_info in data:
             for key in self.RequiredPluginInfoKey:
                 self.assertIn(key, plugin_info)
-            self.assertEqual(plugin_info['status'], states.PluginStatus.Loaded.name)
+            self.assertEqual(plugin_info['status'],
+                             states.PluginStatus.Loaded.name)
 
     def test_blueprint_no_routing(self) -> None:
         self.assertEqual(self.client.get('/plugins').status_code, 404)
@@ -64,7 +65,7 @@ class TestPluginApp(unittest.TestCase):
         self.start_all_plugins()
         response = self.client.get('/plugins/hello/endpoints/raise')
         self.assertEqual(response.status_code, 502)
-    
+
     def test_started_plugins_endpoints_equal_view_function(self) -> None:
         self.start_all_plugins()
         for plugin in self.manager.plugins:
@@ -72,7 +73,8 @@ class TestPluginApp(unittest.TestCase):
             registered_endpoints = []
             for endpoint in self.app.view_functions:
                 if endpoint.startswith(perfix_endpoint):
-                    registered_endpoints.append(utils.startstrip(endpoint, self.manager._config.blueprint + '.'))
+                    registered_endpoints.append(utils.startstrip(
+                        endpoint, self.manager._config.blueprint + '.'))
             self.assertEqual(set(registered_endpoints), set(plugin.endpoints))
 
     def test_started_plugin_html_rendering(self) -> None:
@@ -95,7 +97,8 @@ class TestPluginApp(unittest.TestCase):
 
     def test_started_plugin_url_for_and_redirect(self) -> None:
         self.start_all_plugins()
-        response = self.client.get('/plugins/hello/doge', follow_redirects=True)
+        response = self.client.get(
+            '/plugins/hello/doge', follow_redirects=True)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data, b'HELLO Doge!')
 
@@ -113,7 +116,8 @@ class TestPluginApp(unittest.TestCase):
         self.assertEqual(response.data, b'GOODBYE!')
         response = self.client.get('/plugins/goodbye/static/file.txt')
         self.assertEqual(response.data, b'GOODBYE!')
-        response = self.client.get('/plugins/goodbye/doge', follow_redirects=True)
+        response = self.client.get(
+            '/plugins/goodbye/doge', follow_redirects=True)
         self.assertEqual(response.data, b'GOODBYE Doge!')
         response = self.client.get('/plugins/goodbye/403')
         self.assertEqual(response.status_code, 403)
@@ -150,7 +154,8 @@ class TestPluginApp(unittest.TestCase):
             plugin_endpoint = self.manager._config.blueprint + plugin.domain
             for endpoint in self.app.view_functions:
                 if endpoint.startswith(plugin_endpoint):
-                    self.assertEqual(self.app.view_functions[endpoint], Plugin.notfound)
+                    self.assertEqual(
+                        self.app.view_functions[endpoint], Plugin.notfound)
 
     def test_stopped_plugins_ednpoints_equal_view_function(self) -> None:
         self.start_all_plugins()
@@ -160,8 +165,10 @@ class TestPluginApp(unittest.TestCase):
             registered_endpoints = []
             for endpoint in self.app.view_functions:
                 if endpoint.startswith(perfix_endpoint):
-                    registered_endpoints.append(utils.startstrip(endpoint, self.manager._config.blueprint + '.'))
-            self.assertSetEqual(set(registered_endpoints), set(plugin.endpoints))
+                    registered_endpoints.append(utils.startstrip(
+                        endpoint, self.manager._config.blueprint + '.'))
+            self.assertSetEqual(set(registered_endpoints),
+                                set(plugin.endpoints))
 
     def test_stopped_all_plugins_index_still_working(self) -> None:
         self.start_all_plugins()
@@ -192,4 +199,36 @@ class TestPluginApp(unittest.TestCase):
         plugin_endpoint = self.manager._config.blueprint + hello.domain
         for endpoint in self.app.view_functions:
             if endpoint.startswith(plugin_endpoint):
-                self.fail(f"'{endpoint}' still exists after '{plugin_endpoint}' unloaded")
+                self.fail(
+                    f"'{endpoint}' still exists after '{plugin_endpoint}' unloaded")
+
+
+class TestInvalidPluginDomain(unittest.TestCase):
+
+    def setUp(self) -> None:
+        self.app = init_app('InvalidPluginDomain')
+        self.manager: PluginManager = self.app.plugin_manager  # type: ignore
+
+    def test_invalid_domain_plugin(self) -> None:
+        self.assertRaises(ValueError, lambda: list(self.manager.plugins))
+
+
+class TestLackingPluginConfig(unittest.TestCase):
+
+    def setUp(self) -> None:
+        self.app = init_app('LackingPluginJsonConfig')
+        self.manager: PluginManager = self.app.plugin_manager  # type: ignore
+
+    def test_lacking_config_plugin(self) -> None:
+        self.assertRaises(FileNotFoundError,
+                          lambda: list(self.manager.plugins))
+
+
+class TestEmptyPluginDomainConfig(unittest.TestCase):
+
+    def setUp(self) -> None:
+        self.app = init_app('EmptyPluginDomain')
+        self.manager: PluginManager = self.app.plugin_manager  # type: ignore
+
+    def test_empty_domain_plugin(self) -> None:
+        self.assertRaises(ValueError, lambda: list(self.manager.plugins))

@@ -2,9 +2,6 @@ from src import Plugin
 from flask import redirect, url_for, render_template, abort
 
 plugin = Plugin(
-    id_='hello',
-    domain='hello',
-    name='hello',
     static_folder='static',
     template_folder='templates'
 )

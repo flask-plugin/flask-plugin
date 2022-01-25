@@ -26,15 +26,21 @@ def suite() -> unittest.TestSuite:
     from . import test_manager
     from . import test_plugin
     from . import test_utils
+    from . import test_config
 
     testcases = [
         test_utils.TestUtils,
         test_states.TestStates,
+        test_config.TestConfig,
         test_base.TestBaseApp,
         test_manager.TestManagerApp,
         test_manager.TestInvalidImportManagerApp,
         test_manager.TestNonExistDirectoryManagerApp,
-        test_plugin.TestPluginApp
+        test_manager.TestDuplicatedPluginIDApp,
+        test_plugin.TestPluginApp,
+        test_plugin.TestLackingPluginConfig,
+        test_plugin.TestInvalidPluginDomain,
+        test_plugin.TestEmptyPluginDomainConfig
     ]
 
     loader = SequentialTestLoader()

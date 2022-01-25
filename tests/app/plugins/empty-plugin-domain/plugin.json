@@ -1,0 +1,10 @@
+{
+    "id": "invalid-plugin-domain",
+    "domain": "",
+    "plugin": {
+        "name": "invalid-plugin-domain",
+        "author": "test",
+        "summary": "test."
+    },
+    "releases": []
+}

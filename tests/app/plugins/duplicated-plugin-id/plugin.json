@@ -1,0 +1,10 @@
+{
+    "id": "hello",
+    "domain": "duplicated",
+    "plugin": {
+        "name": "duplicated",
+        "author": "test",
+        "summary": "test."
+    },
+    "releases": []
+}

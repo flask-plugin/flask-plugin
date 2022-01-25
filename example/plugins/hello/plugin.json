@@ -1,0 +1,10 @@
+{
+    "id": "962e3b6cd8b74d02a5a02f1e3651ef87",
+    "domain": "hello",
+    "plugin": {
+        "name": "Greeting",
+        "author": "Doge",
+        "summary": "Hello Flask-Plugin."
+    },
+    "releases": []
+}

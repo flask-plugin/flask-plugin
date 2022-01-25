@@ -1,10 +1,6 @@
 from src import Plugin
 
-plugin = Plugin(
-    id_='only-endpoint',
-    domain='oe',
-    name='only-endpoint'
-)
+plugin = Plugin()
 
 @plugin.endpoint('index')
 def index():

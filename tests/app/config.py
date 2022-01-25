@@ -6,15 +6,58 @@ class BaseDevelopmentConfig:
     PLUGINS_DIRECTORY = 'plugins'
     PLUGINS_EXCLUDES_DIRECTORY = [
         '__pycache__',
-        'should_not_be_imported'
+        'should-not-be-imported',
+        'lacking-plugin-json',
+        'invalid-plugin-domain',
+        'empty-plugin-domain',
+        'duplicated-plugin-id'
     ]
 
 
 class InvalidPluginImportConfig(BaseDevelopmentConfig):
     PLUGINS_EXCLUDES_DIRECTORY = [
-        '__pycache__'
+        '__pycache__',
+        'lacking-plugin-json',
+        'invalid-plugin-domain',
+        'empty-plugin-domain',
+        'duplicated-plugin-id'
     ]
 
+class LackingPluginJsonConfig(BaseDevelopmentConfig):
+    PLUGINS_EXCLUDES_DIRECTORY = [
+        '__pycache__',
+        'should-not-be-imported',
+        'invalid-plugin-domain',
+        'empty-plugin-domain',
+        'duplicated-plugin-id'
+    ]
+
+class InvalidPluginDomain(BaseDevelopmentConfig):
+    PLUGINS_EXCLUDES_DIRECTORY = [
+        '__pycache__',
+        'should-not-be-imported',
+        'lacking-plugin-json',
+        'empty-plugin-domain',
+        'duplicated-plugin-id'
+    ]
+
+class EmptyPluginDomain(BaseDevelopmentConfig):
+    PLUGINS_EXCLUDES_DIRECTORY = [
+        '__pycache__',
+        'should-not-be-imported',
+        'lacking-plugin-json',
+        'invalid-plugin-domain',
+        'duplicated-plugin-id'
+    ]
+
+class DuplicatedPluginId(BaseDevelopmentConfig):
+    PLUGINS_EXCLUDES_DIRECTORY = [
+        '__pycache__',
+        'should-not-be-imported',
+        'lacking-plugin-json',
+        'invalid-plugin-domain',
+        'empty-plugin-domain'
+    ]
 
 class NonExistDirectoryConfig(BaseDevelopmentConfig):
     PLUGINS_DIRECTORY = 'non_exist_plugin_directory'
