@@ -165,22 +165,6 @@ class Plugin(Scaffold):
         return self._endpoints
 
     @staticmethod
-    def _make_domain_by_name(_name: str) -> str:
-        """
-        Convert name to a valid plugin domain name.
-
-        Using plugin name when user did not provide domain, although is NOT encouraged. 
-        It will replace any non-alphabet characters to '_'.
-
-        Args:
-            name (str): raw plugin name
-
-        Returns:
-            str: valid endpoint name
-        """
-        raise DeprecationWarning('This method has been deprecated.')
-
-    @staticmethod
     def notfound(*args, **kwargs) -> Response:
         """
         A shortcut function to ``flask.abort``.

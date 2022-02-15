@@ -1,8 +1,10 @@
 
 import unittest
+from os import path
 
-from src import PluginManager, Plugin
+from src import PluginManager, utils
 
+from . import create_empty_plugin
 from .app import init_app
 
 
@@ -12,6 +14,10 @@ class TestManagerApp(unittest.TestCase):
         self.app = init_app('BaseDevelopmentConfig')
         self.client = self.app.test_client()
         self.manager: PluginManager = self.app.plugin_manager  # type: ignore
+
+    def load_all_plugins(self) -> None:
+        for plugin in self.manager.plugins:
+            self.manager.load(plugin)
 
     def test_plugins_not_empty(self) -> None:
         self.assertNotEqual(self.manager.plugins, [])
@@ -86,6 +92,40 @@ class TestManagerApp(unittest.TestCase):
                 self.fail(
                     f"unload plugin failed: {plugin.name}, {str(e.args[0])}")
 
+    def test_duplicated_id_plugin(self) -> None:
+        dirname = 'test-duplicated-id-plugin'
+        for plugin in self.manager.plugins:
+            create_empty_plugin(dirname, {
+                    'id': plugin.id_,
+                    'domain': 'should-not-be-duplicated',
+                    'plugin': {
+                        'name': 'duplicated',
+                        'author': 'test',
+                        'summary': 'test.'
+                    },
+                    'releases': []
+            })
+            break
+        self.assertRaises(RuntimeError, self.load_all_plugins)
+        utils.rmdir(path.join(self.manager.basedir, dirname))
+
+    def test_duplicated_domain_plugin(self):
+        dirname = 'test-duplicated-domain-plugin'
+        for plugin in self.manager.plugins:
+            create_empty_plugin(dirname, {
+                    'id': 'should-not-be-duplicated',
+                    'domain': plugin.domain,
+                    'plugin': {
+                        'name': 'duplicated',
+                        'author': 'test',
+                        'summary': 'test.'
+                    },
+                    'releases': []
+            })
+            break
+        self.assertRaises(RuntimeError, self.load_all_plugins)
+        utils.rmdir(path.join(self.manager.basedir, dirname))
+
 
 class TestInvalidImportManagerApp(unittest.TestCase):
 
@@ -106,16 +146,3 @@ class TestNonExistDirectoryManagerApp(unittest.TestCase):
     def test_non_exist_direcotry(self) -> None:
         self.assertRaises(FileNotFoundError,
                           lambda: list(self.manager.plugins))
-
-
-class TestDuplicatedPluginIDApp(unittest.TestCase):
-
-    def setUp(self) -> None:
-        self.app = init_app('DuplicatedPluginId')
-        self.manager: PluginManager = self.app.plugin_manager  # type: ignore
-    
-    def test_load_duplicated_id_plugin(self) -> None:
-        def _load_all_plugins():
-            for plugin in self.manager.plugins:
-                self.manager.load(plugin)
-        self.assertRaises(RuntimeError, _load_all_plugins) 

@@ -145,6 +145,11 @@ class PluginManager:
         return self._config.blueprint
 
     @property
+    def basedir(self) -> str:
+        """Return working dir for plugin manager."""
+        return os.path.join(self._app.root_path, self._config.directory)
+
+    @property
     def plugins(self) -> t.Iterable[Plugin]:
         """
         Iter all plugins, including loaded and not loaded.
@@ -193,7 +198,7 @@ class PluginManager:
             Iterator[t.Iterable[t.Tuple[Plugin, str]]]: couple :py:class:`.Plugin` with plugin dirname.
         """
         for directory in utils.listdir(
-            os.path.join(self._app.root_path, self._config.directory),
+            self.basedir,
             excludes=self._config.excludes_directory
         ):
             try:
@@ -272,6 +277,10 @@ class PluginManager:
         # Check if duplicated plugin id
         if plugin.id_ in [_.id_ for _ in self._loaded]:
             raise RuntimeError(f'duplicated plugin id: {plugin.id_}')
+
+        # Check if duplicated plugin domain
+        if plugin.domain in [_.domain for _ in self._loaded]:
+            raise RuntimeError(f'duplicated plugin domain: {plugin.domain}')
 
         # Check if plugin scaned by manager
         if plugin.basedir is None:

@@ -24,7 +24,6 @@ ConfigSchema = __load_config_schema()
 """
 Plugin config schema using formatted with JSON Schema. 
 
-It will be expand to nested dicts splited by '.'.
 Required config file like:
 
 .. code-block:: python
@@ -35,8 +34,14 @@ Required config file like:
         "plugin": {
             "name": "flaskex",
             "author": "anfederico",
-            "description": "Ported version of flaskex example."
-        }
+            "summary": "Ported version of flaskex example."
+        },
+        "releases": [
+            {
+                "version": "0.0.1",
+                "download": "https://github.com/anfederico/flaskex/releases/0.0.1.zip"
+            }
+        ]
     }
 """
 
