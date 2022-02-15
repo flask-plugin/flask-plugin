@@ -1,4 +1,3 @@
-flask
 pylint
 coverage
 codecov

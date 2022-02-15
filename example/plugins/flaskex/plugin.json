@@ -1,0 +1,10 @@
+{
+    "id": "e9d78b6e91644381823c1aa6bdef5606",
+    "domain": "flaskex",
+    "plugin": {
+        "name": "flaskex",
+        "author": "anfederico",
+        "summary": "Ported version of flaskex example."
+    },
+    "releases": []
+}

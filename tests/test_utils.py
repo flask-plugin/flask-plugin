@@ -61,3 +61,16 @@ class TestUtils(unittest.TestCase):
             utils.startstrip('plugins.domain.endpoint', 'plugins.'),
             'domain.endpoint'
         )
+
+    def test_remove_none_exist_dir(self) -> None:
+        dirname = 'tests/testdir'
+        self.assertRaises(FileNotFoundError, lambda: utils.rmdir(dirname))
+
+    def test_remove_dir(self) -> None:
+        dirname = 'tests/testdir'
+        if not os.path.isdir(dirname):
+            os.mkdir(dirname)
+        with open(os.path.join(dirname, 'test.txt'), 'w') as handler:
+            handler.write('test')
+        utils.rmdir(dirname)
+        self.assertEqual(os.path.isdir(dirname), False)

@@ -145,6 +145,11 @@ class PluginManager:
         return self._config.blueprint
 
     @property
+    def basedir(self) -> str:
+        """Return working dir for plugin manager."""
+        return os.path.join(self._app.root_path, self._config.directory)
+
+    @property
     def plugins(self) -> t.Iterable[Plugin]:
         """
         Iter all plugins, including loaded and not loaded.
@@ -193,7 +198,7 @@ class PluginManager:
             Iterator[t.Iterable[t.Tuple[Plugin, str]]]: couple :py:class:`.Plugin` with plugin dirname.
         """
         for directory in utils.listdir(
-            os.path.join(self._app.root_path, self._config.directory),
+            self.basedir,
             excludes=self._config.excludes_directory
         ):
             try:
@@ -221,7 +226,7 @@ class PluginManager:
                 # Check if plugin module contains ``plugin`` variable
                 if not hasattr(module, 'plugin'):
                     raise ImportError('module does not have plugin instance.')
-            except (ImportError, FileNotFoundError) as error:
+            except Exception as error:
                 if self._app.propagate_exceptions:
                     raise
                 self._app.logger.warn(
@@ -273,6 +278,10 @@ class PluginManager:
         if plugin.id_ in [_.id_ for _ in self._loaded]:
             raise RuntimeError(f'duplicated plugin id: {plugin.id_}')
 
+        # Check if duplicated plugin domain
+        if plugin.domain in [_.domain for _ in self._loaded]:
+            raise RuntimeError(f'duplicated plugin domain: {plugin.domain}')
+
         # Check if plugin scaned by manager
         if plugin.basedir is None:
             raise RuntimeError('cannot get plugin basedir')
@@ -280,7 +289,7 @@ class PluginManager:
         plugin.load(self._app, self._config)
         self._loaded[plugin] = plugin.basedir
         self._app.logger.info(f'loaded plugin: {plugin.name}')
-        signals.loaded.send(self, plugin)
+        signals.loaded.send(self, plugin=plugin)
 
     def start(self, plugin: Plugin) -> None:
         """
@@ -292,7 +301,7 @@ class PluginManager:
         plugin.status.assert_allow('start')
         plugin.register(self._app, self._config)
         self._app.logger.info(f'started plugin: {plugin.name}')
-        signals.started.send(self, plugin)
+        signals.started.send(self, plugin=plugin)
 
     def stop(self, plugin: Plugin) -> None:
         """
@@ -304,7 +313,7 @@ class PluginManager:
         plugin.status.assert_allow('stop')
         plugin.unregister(self._app, self._config)
         self._app.logger.info(f'stopped plugin: {plugin.name}')
-        signals.stopped.send(self, plugin)
+        signals.stopped.send(self, plugin=plugin)
 
     def unload(self, plugin: Plugin) -> None:
         """
@@ -317,4 +326,4 @@ class PluginManager:
         plugin.clean(self._app, self._config)
         self._loaded.pop(plugin)
         self._app.logger.info(f'unloaded plugin: {plugin.name}')
-        signals.unloaded.send(self, plugin)
+        signals.unloaded.send(self, plugin=plugin)

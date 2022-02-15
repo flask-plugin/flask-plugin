@@ -6,7 +6,7 @@ class BaseDevelopmentConfig:
     PLUGINS_DIRECTORY = 'plugins'
     PLUGINS_EXCLUDES_DIRECTORY = [
         '__pycache__',
-        'should_not_be_imported'
+        'should-not-be-imported'
     ]
 
 

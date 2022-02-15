@@ -1,0 +1,10 @@
+{
+    "id": "only-endpoint",
+    "domain": "oe",
+    "plugin": {
+        "name": "only-endpoint",
+        "author": "test",
+        "summary": "test."
+    },
+    "releases": []
+}

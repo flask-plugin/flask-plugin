@@ -3,6 +3,7 @@ Contains some helper functions and classes.
 """
 
 import os
+import shutil
 import typing as t
 
 
@@ -139,7 +140,7 @@ def listdir(path: str, excludes: t.Container[str] = None) -> t.Iterator[str]:
         excludes (Container[str], optional): dirname to exclude. Defaults to None.
 
     Yields:
-        Iterator[str]: dirname.
+        Iterator[str]: absolute path of subdirectories.
 
     Raises:
         FileNotFoundError: when given invalid ``path``.
@@ -147,9 +148,23 @@ def listdir(path: str, excludes: t.Container[str] = None) -> t.Iterator[str]:
     if excludes is None:
         excludes=set()
     for itemname in os.listdir(path.strip('\\')):
-        fullname=os.path.join(path, itemname)
+        fullname = os.path.join(path, itemname)
         if os.path.isdir(fullname) and not itemname in excludes:
             yield os.path.abspath(fullname)
+
+
+def rmdir(path: str) -> None:
+    """Remove dir and file inside it.
+
+    Args:
+        path (str): absolute dir gonna remove.
+
+    Raises:
+        FileNotFoundError: when ``path`` not exists.
+    """
+    if not os.path.isdir(path):
+        raise FileNotFoundError()
+    shutil.rmtree(path, ignore_errors=False)
 
 
 def startstrip(string: str, part: str) -> str:

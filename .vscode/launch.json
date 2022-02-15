@@ -5,19 +5,6 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Install Flask-Plugin",
-            "type": "python",
-            "request": "launch",
-            "program": "setup.py",
-            "console": "integratedTerminal",
-            "args": [
-                "install", 
-                "--install-lib", 
-                "/Users/doge/Library/Python/3.8/lib/python/site-packages"
-            ],
-            "preLaunchTask": "uninstall"
-        },
-        {
             "name": "Package Flask-Plugin",
             "type": "python",
             "request": "launch",
@@ -49,6 +36,7 @@
             "request": "launch",
             "program": "example/app.py",
             "console": "integratedTerminal",
+            "preLaunchTask": "reinstall",
             "justMyCode": false
         },
         {

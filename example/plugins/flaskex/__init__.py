@@ -9,9 +9,6 @@ from flask_plugin import Plugin
 import json
 
 plugin = Plugin(
-    id_='334c997a6c4946aaa920f2ffccc27077',
-    name='flaskex',
-    domain='flaskex',
     static_folder='static',
     template_folder='templates'
 )

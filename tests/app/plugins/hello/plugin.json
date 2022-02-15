@@ -1,0 +1,10 @@
+{
+    "id": "hello",
+    "domain": "hello",
+    "plugin": {
+        "name": "hello",
+        "author": "test",
+        "summary": "test."
+    },
+    "releases": []
+}
