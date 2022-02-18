@@ -28,4 +28,4 @@ Generally you don't need to directly access the state of the plugin, but if you 
 
 The 'operation' is a string, and the mapping of a tuple of the current state and the operation to the target state is called the state transfer table. The default transfer table of Flask-Plugin is defined in :py:const:`.states.TransferTable`.
 
-See more information at :doc:`api`。
+See more information at :doc:`api`.

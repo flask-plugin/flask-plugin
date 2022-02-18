@@ -1,47 +1,47 @@
 {
     "$schema": "http://json-schema.org/schema",
     "title": "Plugin Config",
-    "description": "Plugin Config JSON Schema",
+    "description": "Plugin Config JSON Schema.",
     "type": "object",
     "properties": {
         "id": {
-            "description": "Plugin unique ID",
+            "description": "Plugin unique ID.",
             "type": "string"
         },
         "domain": {
-            "description": "Plugin working domain",
+            "description": "Plugin working domain.",
             "type": "string"
         },
         "plugin": {
-            "description": "Plugin info",
+            "description": "Plugin info.",
             "type": "object",
             "properties": {
                 "name": {
-                    "description": "Plugin name",
+                    "description": "Plugin name.",
                     "type": "string"
                 },
                 "author": {
-                    "description": "Plugin author",
+                    "description": "Plugin author.",
                     "type": "string"
                 },
                 "summary": {
-                    "description": "Plugin short description",
+                    "description": "Plugin short description.",
                     "type": "string"
                 },
                 "repo": {
-                    "description": "Git repository adderss",
+                    "description": "Git repository adderss.",
                     "type": "string"
                 },
                 "description": {
-                    "description": "Plugin long description",
+                    "description": "Plugin long description.",
                     "type": "string"
                 },
                 "url": {
-                    "description": "Plugin official site URL",
+                    "description": "Plugin official site URL.",
                     "type": "string"
                 },
                 "maintainer": {
-                    "description": "Plugin maintainer",
+                    "description": "Plugin maintainer.",
                     "type": "array",
                     "items": {
                         "type": "string"
@@ -53,22 +53,22 @@
             ]
         },
         "releases": {
-            "description": "Plugin releases",
+            "description": "Plugin releases.",
             "type": "array",
             "items": {
                 "type": "object",
-                "description": "Released versions",
+                "description": "Released versions.",
                 "properties": {
                     "version": {
-                        "description": "Released version number, parsing with `packaging.version`",
+                        "description": "Released version number, parsing with `packaging.version`.",
                         "type": "string"
                     },
                     "download": {
-                        "description": "Download zip package address",
+                        "description": "Download zip package address.",
                         "type": "string"
                     },
                     "note": {
-                        "description": "Release note",
+                        "description": "Release note.",
                         "type": "string"
                     }
                 },

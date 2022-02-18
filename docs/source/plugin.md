@@ -12,15 +12,27 @@ Creating a plugin with Flask-Plugin is easy. Just follow these steps:
 
 3. In the example below, we are going to use `template` and `static` for template and static resource folder, so create these folder inside your plugin folder.
 
+4. Create `plugin.json` with plugin info:
+
+   ```json
+    {
+        "id": "347336b4fcdd447985aec57f2bc5793c",
+        "domain": "hello",
+        "plugin": {
+            "name": "Greeting",
+            "author": "Doge-Gui",
+            "summary": "An example for Flask-Plugin."
+        },
+        "releases": []
+    }
+   ```
+
 4. Create `__init__.py`, and a instance of :py:class:`.Plugin` named `plugin` like this：
 
    ```python
    from flask_plugin import Plugin
    
    plugin = Plugin(
-       id_='Your Plugin ID',
-       domain='Your Plugin Domain', 
-       name='Your Plugin Name',
        static_folder='static',
        template_folder='template'
    )
@@ -28,22 +40,15 @@ Creating a plugin with Flask-Plugin is easy. Just follow these steps:
 
 And that's done!
 
-But if you have more complex needs, you could give more parameters when instantiating the :py:class:`.Plugin` class. All parameters can be devided into three groups:
+But if you have more complex needs, you could give more parameters when instantiating the :py:class:`.Plugin` class. These parameters are basically same as when using `Blueprint`.
 
-1. Basic plugin info
-   - `id_`: plugin id, for identifying and searching.
-   - `domain`: plugin's domain. If you are using `flaskex`, then you could access your plugin in `/plugins/flaskex`.
-   - `name`: plugin name.
-2. Info for Flask (Optional)
-   - `static_folder`: the static resource folder of the plugin, relative to the directory of this plugin.
-   - `template_forlder`: the template folder of the plugin, relative to the plugin directory.
-   - `static_url_path`: url path of static resource.
-   - `import_name`: this parameter used for loacating directory of plugin, defaults to `__name__`, generally not required. If provided this parameter, please also provide the `root_path`.
-   - `root_path`: the directory of plugin relative to application startup path, generally noy required.
-3. Plugin extensions
-   - `author`: author of plugin.
-   - `description`: a short description of plugin.
-   - `version`: a triplet array gives version of plugin. Like `(0, 0, 1)`
+- `static_folder`: the static resource folder of the plugin, relative to the directory of this plugin.
+- `template_forlder`: the template folder of the plugin, relative to the plugin directory.
+- `static_url_path`: url path of static resource.
+- `import_name`: this parameter used for loacating directory of plugin, defaults to `__name__`, generally not required. If provided this parameter, please also provide the `root_path`.
+- `root_path`: the directory of plugin relative to application startup path, generally noy required.
+
+Except examples mentioned above, there are more fields that can be used to define your plugin in `plugin.json`. For more information, please see :doc:`config`.
 
 ## Usage
 

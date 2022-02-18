@@ -8,10 +8,7 @@
    └── plugins
        └── hello
            ├── __init__.py
-           ├── static
-           │   └── test.txt
-           └── templates
-               └── index.html
+           └── plugin.json
    ```
 
 2. The plugin manager is loaded in the `app.py` file, and the hello plugin is started:
@@ -22,7 +19,7 @@
    
    app = Flask(__name__)
    manager = PluginManager(app)
-   plugin = manager.find(id_='347336b4fcdd447985aec57f2bc5793c')
+   plugin = manager.find(id_='962e3b6cd8b74d02a5a02f1e3651ef87')
    if plugin:
        manager.load(plugin)
        manager.start(plugin)
@@ -32,27 +29,37 @@
    app.run()
    ```
 
+3. Define plugin info in `SayHello/plugin.json` file:
+
+   ```json
+   {
+        "id": "962e3b6cd8b74d02a5a02f1e3651ef87",
+        "domain": "hello",
+        "plugin": {
+            "name": "Greeting",
+            "author": "Doge",
+            "summary": "Hello Flask-Plugin."
+        },
+        "releases": []
+   }
+   ```
+   
 3. Instantiated the `Plugin` in `SayHello/__init__.py` and define the route as you did in `Flask`:
 
    ```python
    from flask_plugin import Plugin
    from flask import redirect, url_for
    
-   plugin = Plugin(
-    id_ = '347336b4fcdd447985aec57f2bc5793c', 
-    domain='hello', name='Greeting',
-    static_folder='static',
-    template_folder='templates'
-   )
+   plugin = Plugin()
    
    ...
    # Other routes defined here
    
-   @plugin.route('/', methods=['GET'])
-   def index():
-       return render_template('index.html', name='Anonymous')
+   @plugin.route('/say/<string:name>', methods=['GET'])
+   def say(name: str):
+       return 'Hello ' + name
    ```
-
+   
 4. Accessing `/plugins/hello/` and see the greeting:
 
    ```

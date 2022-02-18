@@ -8,6 +8,7 @@
 
    quick-start
    plugin
+   config
    manager
    other
    api

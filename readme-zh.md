@@ -22,14 +22,6 @@
 pip install flask-plugin
 ```
 
-或者从 [已发布版本](https://github.com/guiqiqi/flask-plugin/releases/) 中下载 Wheel 安装包（*.whl）并使用：
-
-```bash
-pip install flask_plugin-{{ VERSION }}-py3-none-any.whl
-```
-
-其中 `{{ VERISON }}` 代指发布版本号。
-
 ## 快速开始
 
 1. 进入 `example` 目录，查看目录结构，可以看到在 `plugins` 目录下有一个名为 `hello` 的插件：
@@ -40,10 +32,7 @@ pip install flask_plugin-{{ VERSION }}-py3-none-any.whl
    └── plugins
        └── hello
            ├── __init__.py
-           ├── static
-           │   └── test.txt
-           └── templates
-               └── index.html
+           └── plugin.json
    ```
    
 2. 在 `app.py` 文件中加载插件管理器，并启动 `hello` 插件：
@@ -54,7 +43,7 @@ pip install flask_plugin-{{ VERSION }}-py3-none-any.whl
    
    app = Flask(__name__)
    manager = PluginManager(app)
-   plugin = manager.find(id_='347336b4fcdd447985aec57f2bc5793c')
+   plugin = manager.find(id_='962e3b6cd8b74d02a5a02f1e3651ef87')
    if plugin:
        manager.load(plugin)
        manager.start(plugin)
@@ -64,25 +53,35 @@ pip install flask_plugin-{{ VERSION }}-py3-none-any.whl
    app.run()
    ```
 
-2. 在 `SayHello/__init__.py` 中实例化了 `Plugin` 类，并像在 `Flask` 中一样定义路由：
+2. 在 `SayHello/plugin.json` 中定义插件信息：
+
+   ```json
+   {
+        "id": "962e3b6cd8b74d02a5a02f1e3651ef87",
+        "domain": "hello",
+        "plugin": {
+            "name": "Greeting",
+            "author": "Doge",
+            "summary": "Hello Flask-Plugin."
+        },
+        "releases": []
+   }
+   ```
+   
+2. 在 `SayHello/__init__.py` 中实例化 `Plugin` 类，并像在 `Flask` 中一样定义路由：
 
    ```python
    from flask_plugin import Plugin
    from flask import redirect, url_for
    
-   plugin = Plugin(
-    id_ = '347336b4fcdd447985aec57f2bc5793c', 
-    domain='hello', name='Greeting',
-    static_folder='static',
-    template_folder='templates'
-   )
+   plugin = Plugin()
    
    ...
    # Other routes defined here
    
-   @plugin.route('/', methods=['GET'])
-   def index():
-       return render_template('index.html', name='Anonymous')
+   @plugin.route('/say/<string:name>', methods=['GET'])
+   def say(name: str):
+       return 'Hello ' + name
    ```
    
 4. 访问 `/plugins/hello/` ，看到一个给匿名用户的问候：
