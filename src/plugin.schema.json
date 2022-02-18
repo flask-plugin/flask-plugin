@@ -1,19 +1,19 @@
 {
     "$schema": "http://json-schema.org/schema",
     "title": "Plugin Config",
-    "description": "Plugin Config JSON Schema.",
+    "description": "Flask-Plugin uses Json Schema to verify the configuration. The following configurations are currently supported. Some of these options are required, and these configurations will be used by the manager to identify plugins; others are optional, and they are used to describe plugins in more detail.",
     "type": "object",
     "properties": {
         "id": {
-            "description": "Plugin unique ID.",
+            "description": "Plugin unique ID. Using for identify plugin.",
             "type": "string"
         },
         "domain": {
-            "description": "Plugin working domain.",
+            "description": "Plugin working domain. ",
             "type": "string"
         },
         "plugin": {
-            "description": "Plugin info.",
+            "description": "Plugin description info.",
             "type": "object",
             "properties": {
                 "name": {
@@ -25,7 +25,7 @@
                     "type": "string"
                 },
                 "summary": {
-                    "description": "Plugin short description.",
+                    "description": "A short description.",
                     "type": "string"
                 },
                 "repo": {
@@ -33,7 +33,7 @@
                     "type": "string"
                 },
                 "description": {
-                    "description": "Plugin long description.",
+                    "description": "A long description.",
                     "type": "string"
                 },
                 "url": {
@@ -41,7 +41,7 @@
                     "type": "string"
                 },
                 "maintainer": {
-                    "description": "Plugin maintainer.",
+                    "description": "Plugin maintainers.",
                     "type": "array",
                     "items": {
                         "type": "string"
@@ -60,7 +60,7 @@
                 "description": "Released versions.",
                 "properties": {
                     "version": {
-                        "description": "Released version number, parsing with `packaging.version`.",
+                        "description": "Released version number, will be parsed with python `packaging.version`.",
                         "type": "string"
                     },
                     "download": {

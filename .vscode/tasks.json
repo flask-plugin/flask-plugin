@@ -16,7 +16,15 @@
         {
             "type": "shell",
             "label": "document",
-            "command": ["cd docs && ./build.sh"],
+            "command": [
+                "json-schema-docs -schema src/plugin.schema.json > _config.md",
+                "&&",
+                "sed -r 's/\\[object\\]\\(#([a-z]+)\\)/[object \\1](#\\1)/g' _config.md > docs/source/config.md",
+                "&&",
+                "rm _config.md",
+                "&&",
+                "cd docs && ./build.sh"
+            ],
             "detail": "Build document for Flask-Plugin"
         },
         {
