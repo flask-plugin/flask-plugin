@@ -6,6 +6,8 @@ import os
 import shutil
 import typing as t
 
+import requests
+
 
 class attrdict(dict):
     """
@@ -89,7 +91,7 @@ class property_(t.Generic[_T]):
         @property
         def count(self) -> int:
             return self._count
-    
+
     Obviously its sth like redundancy, by using this ``property_`` function we could:
 
     >>> class AnotherBar(Bar):
@@ -146,15 +148,39 @@ def listdir(path: str, excludes: t.Container[str] = None) -> t.Iterator[str]:
         FileNotFoundError: when given invalid ``path``.
     """
     if excludes is None:
-        excludes=set()
+        excludes = set()
     for itemname in os.listdir(path.strip('\\')):
         fullname = os.path.join(path, itemname)
         if os.path.isdir(fullname) and not itemname in excludes:
             yield os.path.abspath(fullname)
 
 
+def download(url: str, saveto: str) -> t.Iterator[float]:
+    """
+    Download resource from `url` and save to given path.
+
+    Args:
+        url (str): resource url.
+        saveto (str): save to file path.
+
+    Raises:
+        requests.exceptions.InvalidURL: when download 0 bytes.
+        
+    Yields:
+        Iterator[t.Iterator[float]]: current download progress
+    """
+    response = requests.get(url, stream=True, allow_redirects=True)
+    downloaded, total = 0, int(response.headers.get('Content-Length', 0))
+    with open(saveto, 'wb') as handler:
+        for chunk in response.iter_content(chunk_size=4 * 1024):
+            handler.write(chunk)
+            downloaded += len(chunk)
+            yield downloaded / total if total else 1.
+
+
 def rmdir(path: str) -> None:
-    """Remove dir and file inside it.
+    """
+    Remove dir and file inside it.
 
     Args:
         path (str): absolute dir gonna remove.
