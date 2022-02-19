@@ -51,7 +51,8 @@ ConfigPrefix = 'plugins_'
 DefaultConfig: t.Dict[str, t.Any] = staticdict({
     'blueprint': 'plugins',
     'directory': 'plugins',
-    'excludes_directory': ['__pycache__']
+    'excludes_directory': ['__pycache__'],
+    'temporary_directory': '.temp'
 })
 """
 It will be using when config item not found in ``app.config``.

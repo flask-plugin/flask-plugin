@@ -197,9 +197,11 @@ class PluginManager:
         Yields:
             Iterator[t.Iterable[t.Tuple[Plugin, str]]]: couple :py:class:`.Plugin` with plugin dirname.
         """
+        excludes_directory: t.List[str] = self._config.excludes_directory
+        excludes_directory.append(self._config.temporary_directory)
         for directory in utils.listdir(
             self.basedir,
-            excludes=self._config.excludes_directory
+            excludes=excludes_directory
         ):
             try:
                 # Variable ``modname`` represents ``module.__name__`` which will be pass
