@@ -46,7 +46,9 @@ class TestUtils(unittest.TestCase):
 
     def test_listdir(self) -> None:
         workpath = os.path.dirname(os.path.abspath(__file__))
-        self.assertEqual(list(utils.listdir(workpath)), [
+        self.assertEqual(list(
+            utils.listdir(workpath, ('__pycache__'))
+        ), [
             os.path.join(workpath, 'app')
         ])
 
