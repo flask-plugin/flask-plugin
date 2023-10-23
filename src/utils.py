@@ -133,7 +133,7 @@ class property_(t.Generic[_T]):
             delattr(obj, self.__gen_prefix(obj) + self.__name)
 
 
-def listdir(path: str, excludes: t.Container[str] = None) -> t.Iterator[str]:
+def listdir(path: str, excludes: t.Optional[t.Container[str]] = None) -> t.Iterator[str]:
     """
     List all dir inside specific path.
 

@@ -7,6 +7,8 @@
 
 An extension to add support of Plugin in Flask.
 
+**Note: Flask 3 will not be supported.**
+
 **Features:**
 
 1. Define plugin routes in the same way as Application, Blueprint, while providing all the Flask features (Template rendering, url_for, message flashing, signals, etc.)

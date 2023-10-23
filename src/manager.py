@@ -36,7 +36,7 @@ class PluginManager:
     to initialize and configure later.
     """
 
-    def __init__(self, app: Flask = None) -> None:
+    def __init__(self, app: t.Optional[Flask] = None) -> None:
         self._loaded: t.Dict[Plugin, str] = {}
         if not app is None:
             self.init_app(app)
@@ -163,7 +163,12 @@ class PluginManager:
         for plugin in chain(self.scan(), self._loaded.copy()):
             yield plugin
 
-    def find(self, id_: str = None, domain: str = None, name: str = None) -> t.Optional[Plugin]:
+    def find(
+            self, 
+            id_: t.Optional[str] = None, 
+            domain: t.Optional[str] = None, 
+            name: t.Optional[str] = None
+        ) -> t.Optional[Plugin]:
         """
         Find a plugin.
 
@@ -229,12 +234,10 @@ class PluginManager:
                 if not hasattr(module, 'plugin'):
                     raise ImportError('module does not have plugin instance.')
             except Exception as error:
-                if self._app.propagate_exceptions:
-                    raise
                 self._app.logger.warn(
                     f'failed import plugin: {os.path.basename(directory)} - {str(error.args[0])}'
                 )
-                continue
+                raise
 
             # Bind ``basedir`` into plugin module
             module.plugin.basedir = basedir
