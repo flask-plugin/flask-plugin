@@ -3,7 +3,7 @@ from .plugin import Plugin
 from .manager import PluginManager
 from . import signals, utils, states, config
 
-__version__ = '.'.join(str(num) for num in (0, 1, 0))
+__version__ = '.'.join(str(num) for num in (0, 1, 1))
 
 
 __all__ = [
