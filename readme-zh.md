@@ -81,15 +81,15 @@ pip install flask-plugin
    ...
    # Other routes defined here
    
-   @plugin.route('/say/<string:name>', methods=['GET'])
+   @plugin.route('/<string:name>', methods=['GET'])
    def say(name: str):
        return 'Hello ' + name
    ```
    
-4. 访问 `/plugins/hello/` ，看到一个给匿名用户的问候：
+4. 访问 `/plugins/hello/doge` ，看到一个给匿名用户的问候：
 
    ```
-   Hello Anonymous!
+   Hello doge!
    ```
 
    通过访问  `/api/stop/347336b4fcdd447985aec57f2bc5793c` 停止插件，再次检查上面的链接，会得到一个 `HTTP 404` 错误。
