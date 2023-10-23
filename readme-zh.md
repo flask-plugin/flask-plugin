@@ -7,6 +7,8 @@
 
 一个用于支持插件功能的 Flask 扩展。
 
+**注意：Flask 3及以上版本将不再被支持。**
+
 **它能提供什么：**
 
 1. 与 Application、Blueprint 相同的方式定义插件路由，同时提供所有的 Flask 功能（模板渲染、URL 构造、消息闪现、信号等等）
@@ -79,15 +81,15 @@ pip install flask-plugin
    ...
    # Other routes defined here
    
-   @plugin.route('/say/<string:name>', methods=['GET'])
+   @plugin.route('/<string:name>', methods=['GET'])
    def say(name: str):
        return 'Hello ' + name
    ```
    
-4. 访问 `/plugins/hello/` ，看到一个给匿名用户的问候：
+4. 访问 `/plugins/hello/doge` ，看到一个给匿名用户的问候：
 
    ```
-   Hello Anonymous!
+   Hello doge!
    ```
 
    通过访问  `/api/stop/347336b4fcdd447985aec57f2bc5793c` 停止插件，再次检查上面的链接，会得到一个 `HTTP 404` 错误。

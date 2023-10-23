@@ -72,11 +72,11 @@ class Plugin(Scaffold):
         self,
 
         # Same parameters for Scaffold
-        import_name: str = None,
-        static_folder: str = None,
-        static_url_path: str = None,
-        template_folder: str = None,
-        root_path: str = None
+        import_name: t.Optional[str] = None,
+        static_folder: t.Optional[str] = None,
+        static_url_path: t.Optional[str] = None,
+        template_folder: t.Optional[str] = None,
+        root_path: t.Optional[str] = None
     ) -> None:
 
         # Get caller stack info and module using inspect module.
@@ -216,8 +216,8 @@ class Plugin(Scaffold):
 
     def add_url_rule(
             self, rule: str,
-            endpoint: str = None,
-            view_func: t.Callable = None,
+            endpoint: t.Optional[str] = None,
+            view_func: t.Optional[t.Callable] = None,
             provide_automatic_options: t.Optional[bool] = None,
             **options: t.Any
     ) -> None:
@@ -320,8 +320,8 @@ class Plugin(Scaffold):
         return _decorator
 
     def register_error_handler(
-        self, code_or_exception: t.Union[t.Type[ft.GenericException], int],
-        f: "ft.ErrorHandlerCallable[ft.GenericException]"
+        self, code_or_exception: t.Union[t.Type[Exception], int],
+        f: ft.ErrorHandlerCallable
     ) -> None:
 
         try:
@@ -337,7 +337,7 @@ class Plugin(Scaffold):
         def _register_error_handler(app: Flask, config: utils.staticdict) -> None:
             endpoint = config.blueprint + '.' + self._domain
             app.error_handler_spec[endpoint][code][exc_class] = t.cast(
-                "ft.ErrorHandlerCallable[Exception]", f)
+                ft.ErrorHandlerCallable, f)
 
         def _clean_error_handler(app: Flask, config: utils.staticdict) -> None:
             endpoint = config.blueprint + '.' + self._domain
@@ -411,8 +411,8 @@ class Plugin(Scaffold):
             'info': dict(self._info)
         }
 
-    def _is_setup_finished(self) -> bool:
-        return False
+    def _check_setup_finished(self, f_name: str) -> None:
+        return
 
     # Controllers
     def load(self, app: Flask, config: utils.staticdict) -> None:

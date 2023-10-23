@@ -2,7 +2,7 @@
 import json
 import os
 import sys
-from typing import Dict
+from typing import Dict, Optional
 import unittest
 
 dirname = os.path.dirname(__file__)
@@ -24,7 +24,7 @@ class SequentialTestLoader(unittest.TestLoader):
 
 
 def create_empty_plugin(
-    dirname: str, config: Dict = None,
+    dirname: str, config: Optional[Dict] = None,
     casesdir: str = 'app/plugins',
     code: str = 'from src import Plugin\nplugin = Plugin()'
 ) -> str:

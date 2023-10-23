@@ -7,6 +7,8 @@
 
 An extension to add support of Plugin in Flask.
 
+**Note: Flask 3 will not be supported.**
+
 **Features:**
 
 1. Define plugin routes in the same way as Application, Blueprint, while providing all the Flask features (Template rendering, url_for, message flashing, signals, etc.)
@@ -79,15 +81,15 @@ pip install flask-plugin
    ...
    # Other routes defined here
    
-   @plugin.route('/say/<string:name>', methods=['GET'])
+   @plugin.route('/<string:name>', methods=['GET'])
    def say(name: str):
        return 'Hello ' + name
    ```
    
-4. Accessing `/plugins/hello/` and see the greeting:
+4. Accessing `/plugins/hello/doge` and see the greeting:
 
    ```
-   Hello Anonymous!
+   Hello doge!
    ```
 
    Stop the plugin with accessing `/api/stop/347336b4fcdd447985aec57f2bc5793c`, check url above again, and get a `HTTP 404` error.

@@ -46,7 +46,9 @@ class TestUtils(unittest.TestCase):
 
     def test_listdir(self) -> None:
         workpath = os.path.dirname(os.path.abspath(__file__))
-        self.assertEqual(list(utils.listdir(workpath)), [
+        self.assertEqual(list(
+            utils.listdir(workpath, ('__pycache__'))
+        ), [
             os.path.join(workpath, 'app')
         ])
 
@@ -73,4 +75,16 @@ class TestUtils(unittest.TestCase):
         with open(os.path.join(dirname, 'test.txt'), 'w') as handler:
             handler.write('test')
         utils.rmdir(dirname)
-        self.assertEqual(os.path.isdir(dirname), False)
+        self.assert_(not os.path.isdir(dirname))
+
+    def test_download_valid_file(self) -> None:
+        dirname, filename = 'tests/testdir', 'flask-plugin.zip'
+        if not os.path.isdir(dirname):
+            os.mkdir(dirname)
+        url = 'https://github.com/guiqiqi/flask-plugin/archive/refs/tags/v0.1.0.zip'
+        progress = 0.
+        for progress in utils.download(url, saveto=os.path.join(dirname, filename)):
+            self.assertLessEqual(progress, 1.0)
+        self.assertEqual(progress, 1.0)
+        self.assert_(os.path.isfile(os.path.join(dirname, filename)))
+        utils.rmdir(dirname)

@@ -7,7 +7,7 @@
             "type": "shell",
             "label": "reinstall",
             "command": [
-                "pip uninstall flask_plugin -y", 
+                "pip uninstall flask_plugin -y",
                 "&&",
                 "python3 setup.py install",
                 "--install-lib /Users/doge/Library/Python/3.8/lib/python/site-packages"
@@ -30,8 +30,23 @@
         {
             "type": "shell",
             "label": "coverage",
-            "command": ["coverage run --source src -m tests.run && coverage html -d reports"],
+            "command": [
+                "coverage run --source src -m tests.run && coverage html -d reports"
+            ],
             "detail": "Check code coverage for Flask-Plugin"
+        },
+        {
+            "type": "shell",
+            "label": "distribute",
+            "command": [
+                "rm -rf dist",
+                "&&",
+                "python3 setup.py clean --all bdist_wheel",
+                "&&",
+                "twine upload dist/*"
+            ],
+            "detail": "Package Flask-Plugin into wheel",
+            "problemMatcher": []
         }
     ]
 }

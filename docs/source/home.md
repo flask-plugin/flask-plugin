@@ -23,11 +23,3 @@ Install Flask-Plugin using pip:
 ```bash
 pip install flask-plugin
 ```
-
-Or download Wheel package from [releases](https://github.com/guiqiqi/flask-plugin/releases/) and install using pip:
-
-```bash
-pip install flask_plugin-{{ VERSION }}-py3-none-any.whl
-```
-
-which `{{ VERSION }}` is release version.
